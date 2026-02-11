@@ -2,1321 +2,237 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f172a">
-    <link rel="manifest" href="manifest.json">
-    <title>Tennis Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        :root {
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --accent-green: #10b981;
-            --accent-yellow: #fbbf24;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border-color: #334155;
-        }
-
-        body {
-            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* 배경 그라디언트 효과 */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 30% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 80%, rgba(251, 191, 36, 0.08) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 100%;
-            min-height: 100vh;
-        }
-
-        /* 헤더 */
-        .app-header {
-            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(30, 41, 59, 0.95) 100%);
-            backdrop-filter: blur(20px);
-            padding: 1.5rem 1.25rem;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .logo-icon {
-            font-size: 2rem;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        .logo-text {
-            font-family: 'Space Mono', monospace;
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-green), var(--accent-yellow));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .user-badge {
-            background: var(--accent-green);
-            color: var(--bg-dark);
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        /* 탭 네비게이션 */
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            padding: 1rem 1.25rem;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-
-        .tabs::-webkit-scrollbar {
-            display: none;
-        }
-
-        .tab-btn {
-            flex-shrink: 0;
-            padding: 0.75rem 1.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(135deg, var(--accent-green), #059669);
-            border-color: var(--accent-green);
-            color: white;
-            transform: scale(1.05);
-        }
-
-        /* 탭 컨텐츠 */
-        .tab-content {
-            display: none;
-            padding: 1.25rem;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* 카드 */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 1.25rem;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-green), var(--accent-yellow));
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* 폼 */
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 1rem;
-            background: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            color: var(--text-primary);
-            font-size: 1rem;
-            font-family: inherit;
-            transition: all 0.3s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--accent-green);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        /* 버튼 */
-        .btn {
-            width: 100%;
-            padding: 1rem 1.5rem;
-            background: linear-gradient(135deg, var(--accent-green), #059669);
-            border: none;
-            border-radius: 0.75rem;
-            color: white;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn-secondary {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-        }
-
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            width: auto;
-        }
-
-        /* 통계 그리드 */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-
-        .stat-card {
-            background: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            padding: 1.25rem;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-green), var(--accent-yellow));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-        }
-
-        /* 프로필 카드 */
-        .profile-display {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 1.25rem;
-            padding: 2rem 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--accent-green), var(--accent-yellow));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin: 0 auto 1rem;
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
-        }
-
-        .profile-name {
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .profile-meta {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .profile-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-        }
-
-        .profile-item {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: 0.75rem;
-            padding: 0.75rem;
-            text-align: center;
-        }
-
-        .profile-item-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.25rem;
-        }
-
-        .profile-item-value {
-            font-size: 1rem;
-            font-weight: 700;
-        }
-
-        /* 경기 아이템 */
-        .match-item {
-            background: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            border-left: 4px solid var(--accent-green);
-            border-radius: 1rem;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-        }
-
-        .match-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .match-date {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-
-        .match-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .badge-singles {
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
-        }
-
-        .badge-doubles {
-            background: rgba(168, 85, 247, 0.2);
-            color: #c084fc;
-        }
-
-        .match-result {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin: 0.75rem 0;
-        }
-
-        .win { color: var(--accent-green); }
-        .loss { color: #ef4444; }
-
-        .match-score {
-            background: var(--bg-card);
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            margin: 0.75rem 0;
-            text-align: center;
-            font-family: 'Space Mono', monospace;
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        /* 스코어 입력 */
-        .score-input-row {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            gap: 1rem;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .score-input-row input {
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: 700;
-            font-family: 'Space Mono', monospace;
-        }
-
-        .score-divider {
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            font-weight: 700;
-        }
-
-        .tiebreak-section {
-            background: rgba(251, 191, 36, 0.1);
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            border-radius: 1rem;
-            padding: 1.25rem;
-            margin-top: 1rem;
-        }
-
-        .tiebreak-label {
-            font-size: 0.875rem;
-            font-weight: 700;
-            color: var(--accent-yellow);
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        /* 빈 상태 */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1.5rem;
-        }
-
-        .empty-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.3;
-        }
-
-        .empty-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .empty-text {
-            color: var(--text-secondary);
-        }
-
-        /* 선수 카드 */
-        .player-card {
-            background: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .player-card:active {
-            transform: scale(0.98);
-            border-color: var(--accent-green);
-        }
-
-        .player-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-
-        .player-name {
-            font-size: 1.25rem;
-            font-weight: 700;
-        }
-
-        .player-badges {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .badge-partner {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--accent-green);
-        }
-
-        .badge-opponent {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-        }
-
-        /* 모달 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            padding: 1rem;
-            overflow-y: auto;
-        }
-
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 1.25rem;
-            padding: 1.5rem;
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .modal-close {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        /* 검색 */
-        .search-box {
-            margin-bottom: 1.5rem;
-        }
-
-        .search-box input {
-            padding-left: 3rem;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.35-4.35'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: 1rem center;
-        }
-
-        /* 애니메이션 */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .card, .match-item, .player-card {
-            animation: slideIn 0.3s ease-out;
-        }
-
-        /* 반응형 */
-        @media (min-width: 640px) {
-            .container {
-                max-width: 640px;
-                margin: 0 auto;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="테니스 동호인을 위한 경기 기록 앱">
+    <meta name="theme-color" content="#2E7D32">
+    
+    <title>TennisMate - 테니스 경기 기록</title>
+    
+    <!-- PWA 설정 -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- 헤더 -->
-        <div class="app-header">
-            <div class="header-content">
-                <div class="logo">
-                    <div class="logo-icon">🎾</div>
-                    <div class="logo-text">TENNIS PRO</div>
-                </div>
-                <div class="user-badge" id="userBadge">시작하기</div>
-            </div>
-        </div>
-
-        <!-- 탭 네비게이션 -->
-        <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('profile')">프로필</button>
-            <button class="tab-btn" onclick="showTab('record')">경기기록</button>
-            <button class="tab-btn" onclick="showTab('stats')">통계</button>
-            <button class="tab-btn" onclick="showTab('players')">선수</button>
-            <button class="tab-btn" onclick="showTab('share')">공유</button>
-        </div>
-
-        <!-- 프로필 탭 -->
-        <div id="profile" class="tab-content active">
-            <div id="profileDisplay" style="display: none;">
-                <div class="profile-display">
-                    <div class="profile-avatar" id="avatar">U</div>
-                    <div class="profile-name" id="displayName">사용자</div>
-                    <div class="profile-meta" id="displayMeta">구력 정보 없음</div>
-                    <div class="profile-grid" id="profileGrid"></div>
-                </div>
-                <button class="btn btn-secondary" onclick="editProfile()">프로필 수정</button>
-            </div>
-
-            <div id="profileForm">
-                <div class="card">
-                    <div class="card-title">⚡ 프로필 설정</div>
-                    <form id="profileFormElement">
-                        <div class="form-group">
-                            <label>닉네임</label>
-                            <input type="text" id="nickname" required placeholder="홍길동">
-                        </div>
-                        <div class="form-group">
-                            <label>나이대</label>
-                            <select id="ageGroup" required>
-                                <option value="">선택하세요</option>
-                                <option value="10대">10대</option>
-                                <option value="20대">20대</option>
-                                <option value="30대">30대</option>
-                                <option value="40대">40대</option>
-                                <option value="50대">50대</option>
-                                <option value="60대 이상">60대 이상</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>구력</label>
-                            <select id="experience" required>
-                                <option value="">선택하세요</option>
-                                <option value="6개월 미만">6개월 미만</option>
-                                <option value="6개월~1년">6개월~1년</option>
-                                <option value="1~2년">1~2년</option>
-                                <option value="2~3년">2~3년</option>
-                                <option value="3~5년">3~5년</option>
-                                <option value="5~10년">5~10년</option>
-                                <option value="10년 이상">10년 이상</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>주 손잡이</label>
-                            <select id="handedness" required>
-                                <option value="">선택하세요</option>
-                                <option value="오른손">오른손</option>
-                                <option value="왼손">왼손</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>플레이 스타일</label>
-                            <select id="playStyle" required>
-                                <option value="">선택하세요</option>
-                                <option value="공격형">공격형</option>
-                                <option value="수비형">수비형</option>
-                                <option value="올라운드">올라운드</option>
-                                <option value="네트플레이">네트플레이</option>
-                                <option value="베이스라인">베이스라인</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn">저장하기</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- 경기 기록 탭 -->
-        <div id="record" class="tab-content">
-            <div class="card">
-                <div class="card-title">🎯 새 경기 기록</div>
-                <form id="matchForm">
-                    <div class="form-group">
-                        <label>경기 날짜</label>
-                        <input type="date" id="matchDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label>경기 형식</label>
-                        <select id="matchType" required onchange="toggleMatchFields()">
-                            <option value="">선택하세요</option>
-                            <option value="단식">단식</option>
-                            <option value="복식">복식</option>
-                        </select>
-                    </div>
-                    <div id="partnerSection" style="display: none;">
-                        <div class="form-group">
-                            <label>파트너 이름</label>
-                            <input type="text" id="partnerName" placeholder="김영희">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label id="opponent1Label">상대방 이름</label>
-                        <input type="text" id="opponent1Name" required placeholder="박철수">
-                    </div>
-                    <div id="opponent2Section" style="display: none;">
-                        <div class="form-group">
-                            <label>상대방 2 이름</label>
-                            <input type="text" id="opponent2Name" placeholder="이민수">
-                        </div>
-                    </div>
-                    
-                    <div id="scoreSection"></div>
-                    
-                    <div class="form-group">
-                        <label>메모 (선택)</label>
-                        <textarea id="matchNotes" placeholder="경기 내용, 전략, 느낀 점 등..."></textarea>
-                    </div>
-                    <button type="submit" class="btn">경기 저장</button>
-                </form>
-            </div>
-
-            <div class="card">
-                <div class="card-title">📋 최근 경기</div>
-                <div id="matchList"></div>
-            </div>
-        </div>
-
-        <!-- 통계 탭 -->
-        <div id="stats" class="tab-content">
-            <div class="card">
-                <div class="card-title">📊 나의 전적</div>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalMatches">0</div>
-                        <div class="stat-label">총 경기</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalWins">0</div>
-                        <div class="stat-label">승</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalLosses">0</div>
-                        <div class="stat-label">패</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="winRate">0%</div>
-                        <div class="stat-label">승률</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">🎾 형식별 전적</div>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="singlesRecord">0-0</div>
-                        <div class="stat-label">단식</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="doublesRecord">0-0</div>
-                        <div class="stat-label">복식</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="partnerStats"></div>
-        </div>
-
-        <!-- 선수 탭 -->
-        <div id="players" class="tab-content">
-            <div class="search-box">
-                <input type="text" id="playerSearch" placeholder="선수 검색..." oninput="filterPlayers()">
-            </div>
-            <div id="playersList"></div>
-        </div>
-
-        <!-- 공유 탭 -->
-        <div id="share" class="tab-content">
-            <div class="card">
-                <div class="card-title">💾 데이터 백업</div>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                    데이터를 파일로 저장하여 백업하거나 다른 회원과 공유하세요.
-                </p>
-                <button class="btn" onclick="exportData()">데이터 다운로드</button>
-            </div>
-
-            <div class="card">
-                <div class="card-title">📥 데이터 불러오기</div>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                    다른 회원의 데이터를 불러와서 선수 정보를 추가할 수 있습니다.
-                </p>
-                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
-                <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">
-                    파일 선택
-                </button>
-                <div id="importStatus" style="margin-top: 1rem;"></div>
-            </div>
-        </div>
-
-        <!-- 선수 상세 모달 -->
-        <div id="playerModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="modal-title" id="modalPlayerName"></div>
-                    <button class="modal-close" onclick="closeModal()">닫기</button>
-                </div>
-                <div id="modalContent"></div>
-            </div>
-        </div>
+    <!-- 로딩 화면 -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
     </div>
 
-    <script>
-        let myProfile = null;
-        let matches = [];
-        let players = {};
+    <!-- 메인 앱 컨테이너 -->
+    <div id="app" class="app-container" style="display: none;">
+        
+        <!-- 헤더 -->
+        <header class="header">
+            <h1>🎾 TennisMate</h1>
+            <div id="userInfo" class="user-info"></div>
+        </header>
 
-        // 초기화
-        window.addEventListener('load', () => {
-            loadData();
-            updateUI();
-            document.getElementById('matchDate').valueAsDate = new Date();
-        });
+        <!-- 탭 네비게이션 -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="home">홈</button>
+            <button class="tab-btn" data-tab="record">기록 등록</button>
+            <button class="tab-btn" data-tab="stats">통계</button>
+            <button class="tab-btn" data-tab="profile">프로필</button>
+        </nav>
 
-        // 탭 전환
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabName).classList.add('active');
+        <!-- 홈 탭 -->
+        <section id="home" class="tab-content active">
+            <div class="welcome-card">
+                <h2>환영합니다!</h2>
+                <p id="welcomeMessage">테니스 경기를 기록하고 관리하세요</p>
+            </div>
 
-            if (tabName === 'stats') updateStats();
-            if (tabName === 'players') updatePlayersList();
-        }
-
-        // 프로필 폼 제출
-        document.getElementById('profileFormElement').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            myProfile = {
-                nickname: document.getElementById('nickname').value,
-                ageGroup: document.getElementById('ageGroup').value,
-                experience: document.getElementById('experience').value,
-                handedness: document.getElementById('handedness').value,
-                playStyle: document.getElementById('playStyle').value
-            };
-            
-            saveData();
-            updateUI();
-            alert('✅ 프로필이 저장되었습니다!');
-        });
-
-        function editProfile() {
-            if (!myProfile) return;
-            document.getElementById('nickname').value = myProfile.nickname;
-            document.getElementById('ageGroup').value = myProfile.ageGroup;
-            document.getElementById('experience').value = myProfile.experience;
-            document.getElementById('handedness').value = myProfile.handedness;
-            document.getElementById('playStyle').value = myProfile.playStyle;
-            
-            document.getElementById('profileDisplay').style.display = 'none';
-            document.getElementById('profileForm').style.display = 'block';
-        }
-
-        function updateUI() {
-            updateHeader();
-            updateProfileDisplay();
-            updateMatchList();
-            updateStats();
-            updatePlayersList();
-        }
-
-        function updateHeader() {
-            if (myProfile) {
-                document.getElementById('userBadge').textContent = myProfile.nickname;
-            }
-        }
-
-        function updateProfileDisplay() {
-            if (!myProfile) {
-                document.getElementById('profileDisplay').style.display = 'none';
-                document.getElementById('profileForm').style.display = 'block';
-                return;
-            }
-
-            document.getElementById('profileDisplay').style.display = 'block';
-            document.getElementById('profileForm').style.display = 'none';
-
-            const avatar = myProfile.nickname.substring(0, 1).toUpperCase();
-            document.getElementById('avatar').textContent = avatar;
-            document.getElementById('displayName').textContent = myProfile.nickname;
-            document.getElementById('displayMeta').textContent = `${myProfile.ageGroup} · ${myProfile.experience}`;
-
-            document.getElementById('profileGrid').innerHTML = `
-                <div class="profile-item">
-                    <div class="profile-item-label">손잡이</div>
-                    <div class="profile-item-value">${myProfile.handedness}</div>
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalMatches">0</div>
+                    <div class="stat-label">총 경기</div>
                 </div>
-                <div class="profile-item">
-                    <div class="profile-item-label">스타일</div>
-                    <div class="profile-item-value">${myProfile.playStyle}</div>
+                <div class="stat-card">
+                    <div class="stat-number" id="winRate">0%</div>
+                    <div class="stat-label">승률</div>
                 </div>
-            `;
-        }
-
-        // 경기 형식 변경
-        function toggleMatchFields() {
-            const matchType = document.getElementById('matchType').value;
-            const isDoubles = matchType === '복식';
-            
-            document.getElementById('partnerSection').style.display = isDoubles ? 'block' : 'none';
-            document.getElementById('opponent2Section').style.display = isDoubles ? 'block' : 'none';
-            document.getElementById('opponent1Label').textContent = isDoubles ? '상대방 1 이름' : '상대방 이름';
-            
-            document.getElementById('partnerName').required = isDoubles;
-            document.getElementById('opponent2Name').required = isDoubles;
-
-            if (matchType) {
-                renderScoreInput();
-            } else {
-                document.getElementById('scoreSection').innerHTML = '';
-            }
-        }
-
-        // 스코어 입력 렌더링
-        function renderScoreInput() {
-            document.getElementById('scoreSection').innerHTML = `
-                <div class="card" style="background: var(--bg-dark); margin-bottom: 1rem;">
-                    <div style="font-weight: 700; margin-bottom: 1rem; color: var(--accent-green);">게임 스코어</div>
-                    <div class="score-input-row">
-                        <div>
-                            <label style="text-align: center;">우리</label>
-                            <input type="number" id="myGames" min="0" max="20" placeholder="0" required>
-                        </div>
-                        <div class="score-divider">-</div>
-                        <div>
-                            <label style="text-align: center;">상대</label>
-                            <input type="number" id="oppGames" min="0" max="20" placeholder="0" required onchange="checkTiebreak()">
-                        </div>
-                    </div>
-                    <div id="tiebreakSection"></div>
+                <div class="stat-card">
+                    <div class="stat-number" id="recentWins">0</div>
+                    <div class="stat-label">최근 승</div>
                 </div>
-            `;
-        }
+            </div>
 
-        // 타이브레이크 체크
-        function checkTiebreak() {
-            const myGames = parseInt(document.getElementById('myGames').value) || 0;
-            const oppGames = parseInt(document.getElementById('oppGames').value) || 0;
-            
-            if (myGames === oppGames && myGames >= 5) {
-                document.getElementById('tiebreakSection').innerHTML = `
-                    <div class="tiebreak-section">
-                        <div class="tiebreak-label">🎾 타이브레이크</div>
-                        <div class="score-input-row">
-                            <input type="number" id="myTiebreak" min="0" placeholder="우리" required>
-                            <div class="score-divider">-</div>
-                            <input type="number" id="oppTiebreak" min="0" placeholder="상대" required>
-                        </div>
-                    </div>
-                `;
-            } else {
-                document.getElementById('tiebreakSection').innerHTML = '';
-            }
-        }
+            <div class="recent-matches">
+                <h3>최근 경기</h3>
+                <div id="recentMatchesList"></div>
+            </div>
+        </section>
 
-        // 경기 기록 제출
-        document.getElementById('matchForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (!myProfile) {
-                alert('먼저 프로필을 작성해주세요!');
-                showTab('profile');
-                return;
-            }
-
-            const matchType = document.getElementById('matchType').value;
-            const myGames = parseInt(document.getElementById('myGames').value);
-            const oppGames = parseInt(document.getElementById('oppGames').value);
-
-            const match = {
-                id: Date.now(),
-                date: document.getElementById('matchDate').value,
-                matchType: matchType,
-                opponent1: document.getElementById('opponent1Name').value,
-                myGames: myGames,
-                oppGames: oppGames,
-                notes: document.getElementById('matchNotes').value
-            };
-
-            if (matchType === '복식') {
-                match.partner = document.getElementById('partnerName').value;
-                match.opponent2 = document.getElementById('opponent2Name').value;
-            }
-
-            // 타이브레이크
-            if (myGames === oppGames && myGames >= 5) {
-                match.myTiebreak = parseInt(document.getElementById('myTiebreak').value);
-                match.oppTiebreak = parseInt(document.getElementById('oppTiebreak').value);
-            }
-
-            matches.unshift(match);
-            updatePlayerData(match);
-            saveData();
-            updateUI();
-
-            this.reset();
-            document.getElementById('matchDate').valueAsDate = new Date();
-            document.getElementById('scoreSection').innerHTML = '';
-
-            alert('✅ 경기가 저장되었습니다!');
-        });
-
-        // 선수 데이터 업데이트
-        function updatePlayerData(match) {
-            const playerNames = [match.opponent1];
-            if (match.partner) playerNames.push(match.partner);
-            if (match.opponent2) playerNames.push(match.opponent2);
-
-            playerNames.forEach(name => {
-                if (name && name !== myProfile.nickname) {
-                    if (!players[name]) {
-                        players[name] = { name: name, matches: [] };
-                    }
-                    players[name].matches.push(match);
-                }
-            });
-        }
-
-        // 경기 목록 업데이트
-        function updateMatchList() {
-            const container = document.getElementById('matchList');
-            
-            if (matches.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">🎾</div>
-                        <div class="empty-title">경기 기록이 없습니다</div>
-                        <div class="empty-text">첫 경기를 기록해보세요!</div>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = matches.slice(0, 10).map(match => {
-                let myScore = match.myGames;
-                let oppScore = match.oppGames;
-                
-                if (match.myTiebreak !== undefined) {
-                    if (match.myTiebreak > match.oppTiebreak) myScore++;
-                    else oppScore++;
-                }
-
-                const isWin = myScore > oppScore;
-                const resultClass = isWin ? 'win' : 'loss';
-                const resultText = isWin ? '승리' : '패배';
-
-                let scoreDisplay = `${match.myGames}-${match.oppGames}`;
-                if (match.myTiebreak !== undefined) {
-                    scoreDisplay += ` (${match.myTiebreak}-${match.oppTiebreak})`;
-                }
-
-                return `
-                    <div class="match-item">
-                        <div class="match-header">
-                            <div class="match-date">${match.date}</div>
-                            <div class="match-badge ${match.matchType === '단식' ? 'badge-singles' : 'badge-doubles'}">
-                                ${match.matchType}
-                            </div>
-                        </div>
-                        <div class="match-result ${resultClass}">${resultText}</div>
-                        <div class="match-score">${scoreDisplay}</div>
-                        ${match.notes ? `<div style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.75rem;">${match.notes}</div>` : ''}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // 통계 업데이트
-        function updateStats() {
-            const total = matches.length;
-            const wins = matches.filter(m => {
-                let myScore = m.myGames;
-                let oppScore = m.oppGames;
-                if (m.myTiebreak !== undefined) {
-                    if (m.myTiebreak > m.oppTiebreak) myScore++;
-                    else oppScore++;
-                }
-                return myScore > oppScore;
-            }).length;
-            const losses = total - wins;
-            const winRate = total > 0 ? ((wins / total) * 100).toFixed(0) : 0;
-
-            document.getElementById('totalMatches').textContent = total;
-            document.getElementById('totalWins').textContent = wins;
-            document.getElementById('totalLosses').textContent = losses;
-            document.getElementById('winRate').textContent = winRate + '%';
-
-            const singles = matches.filter(m => m.matchType === '단식');
-            const singlesWins = singles.filter(m => {
-                let myScore = m.myGames;
-                let oppScore = m.oppGames;
-                if (m.myTiebreak !== undefined) {
-                    if (m.myTiebreak > m.oppTiebreak) myScore++;
-                    else oppScore++;
-                }
-                return myScore > oppScore;
-            }).length;
-
-            const doubles = matches.filter(m => m.matchType === '복식');
-            const doublesWins = doubles.filter(m => {
-                let myScore = m.myGames;
-                let oppScore = m.oppGames;
-                if (m.myTiebreak !== undefined) {
-                    if (m.myTiebreak > m.oppTiebreak) myScore++;
-                    else oppScore++;
-                }
-                return myScore > oppScore;
-            }).length;
-
-            document.getElementById('singlesRecord').textContent = `${singlesWins}-${singles.length - singlesWins}`;
-            document.getElementById('doublesRecord').textContent = `${doublesWins}-${doubles.length - doublesWins}`;
-        }
-
-        // 선수 목록 업데이트
-        function updatePlayersList() {
-            const container = document.getElementById('playersList');
-            const playerList = Object.values(players);
-
-            if (playerList.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">👥</div>
-                        <div class="empty-title">등록된 선수가 없습니다</div>
-                        <div class="empty-text">경기를 기록하면 자동으로 추가됩니다</div>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = playerList.sort((a, b) => a.name.localeCompare(b.name)).map(player => {
-                const asPartner = player.matches.filter(m => m.partner === player.name).length;
-                const asOpponent = player.matches.length - asPartner;
-
-                return `
-                    <div class="player-card" onclick="showPlayerDetail('${player.name}')">
-                        <div class="player-header">
-                            <div class="player-name">${player.name}</div>
-                            <div class="player-badges">
-                                ${asPartner > 0 ? '<span class="badge badge-partner">파트너</span>' : ''}
-                                ${asOpponent > 0 ? '<span class="badge badge-opponent">상대</span>' : ''}
-                            </div>
-                        </div>
-                        <div style="color: var(--text-secondary); font-size: 0.875rem;">
-                            총 ${player.matches.length}경기
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function filterPlayers() {
-            const search = document.getElementById('playerSearch').value.toLowerCase();
-            document.querySelectorAll('.player-card').forEach(card => {
-                const name = card.querySelector('.player-name').textContent.toLowerCase();
-                card.style.display = name.includes(search) ? 'block' : 'none';
-            });
-        }
-
-        function showPlayerDetail(name) {
-            const player = players[name];
-            document.getElementById('modalPlayerName').textContent = name;
-            document.getElementById('modalContent').innerHTML = `
-                <div class="card" style="margin-bottom: 1rem;">
-                    <div style="text-align: center; font-size: 3rem; margin-bottom: 1rem;">
-                        ${player.name.substring(0, 1)}
-                    </div>
-                    <div style="text-align: center; color: var(--text-secondary);">
-                        총 ${player.matches.length}경기 기록
-                    </div>
+        <!-- 기록 등록 탭 -->
+        <section id="record" class="tab-content">
+            <h2>경기 기록 등록</h2>
+            <form id="matchForm" class="form">
+                <div class="form-group">
+                    <label for="matchDate">날짜</label>
+                    <input type="date" id="matchDate" required>
                 </div>
-            `;
-            document.getElementById('playerModal').classList.add('active');
-        }
 
-        function closeModal() {
-            document.getElementById('playerModal').classList.remove('active');
-        }
+                <div class="form-group">
+                    <label for="opponentNickname">상대 닉네임</label>
+                    <input type="text" id="opponentNickname" placeholder="상대 이름 입력" required>
+                </div>
 
-        // 데이터 관리
-        function exportData() {
-            const data = {
-                version: '1.0',
-                exportDate: new Date().toISOString(),
-                profile: myProfile,
-                matches: matches,
-                players: players
-            };
+                <div class="form-group">
+                    <label for="score">세트 스코어</label>
+                    <input type="text" id="score" placeholder="예: 6-4, 3-6, 6-2" required>
+                    <small>각 세트를 쉼표로 구분하세요</small>
+                </div>
 
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `tennis_${myProfile?.nickname || 'data'}_${new Date().toISOString().slice(0,10)}.json`;
-            link.click();
-            URL.revokeObjectURL(url);
+                <div class="form-group">
+                    <label for="result">결과</label>
+                    <select id="result" required>
+                        <option value="">선택</option>
+                        <option value="승리">승리</option>
+                        <option value="패배">패배</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="memo">메모 (선택)</label>
+                    <textarea id="memo" rows="3" placeholder="경기에 대한 메모를 남겨보세요"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">기록 저장</button>
+            </form>
+        </section>
+
+        <!-- 통계 탭 -->
+        <section id="stats" class="tab-content">
+            <h2>경기 통계</h2>
             
-            alert('✅ 데이터가 다운로드되었습니다!');
-        }
+            <div class="stats-summary">
+                <div class="stat-row">
+                    <span>총 경기:</span>
+                    <strong id="statsTotal">0</strong>
+                </div>
+                <div class="stat-row">
+                    <span>승리:</span>
+                    <strong id="statsWins" class="text-success">0</strong>
+                </div>
+                <div class="stat-row">
+                    <span>패배:</span>
+                    <strong id="statsLosses" class="text-danger">0</strong>
+                </div>
+                <div class="stat-row">
+                    <span>승률:</span>
+                    <strong id="statsWinRate">0%</strong>
+                </div>
+            </div>
 
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            <h3>전체 기록</h3>
+            <div id="allMatchesList" class="matches-list"></div>
+        </section>
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    
-                    if (data.players) {
-                        let count = 0;
-                        Object.keys(data.players).forEach(name => {
-                            if (name !== myProfile?.nickname) {
-                                if (!players[name]) {
-                                    players[name] = data.players[name];
-                                    count++;
-                                }
-                            }
-                        });
-                        
-                        saveData();
-                        updateUI();
-                        
-                        document.getElementById('importStatus').innerHTML = `
-                            <div style="padding: 1rem; background: rgba(16, 185, 129, 0.2); border: 1px solid var(--accent-green); border-radius: 0.75rem; color: var(--accent-green);">
-                                ✅ ${count}명의 선수 정보가 추가되었습니다!
-                            </div>
-                        `;
-                        
-                        setTimeout(() => {
-                            document.getElementById('importStatus').innerHTML = '';
-                        }, 3000);
-                    }
-                } catch (error) {
-                    alert('❌ 파일을 읽을 수 없습니다.');
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
+        <!-- 프로필 탭 -->
+        <section id="profile" class="tab-content">
+            <div id="profileView">
+                <h2>내 프로필</h2>
+                <div id="profileInfo" class="profile-info"></div>
+                <button id="editProfileBtn" class="btn btn-secondary">프로필 수정</button>
+                <button id="logoutBtn" class="btn btn-danger">로그아웃</button>
+            </div>
 
-        function saveData() {
-            localStorage.setItem('tennisProfile', JSON.stringify(myProfile));
-            localStorage.setItem('tennisMatches', JSON.stringify(matches));
-            localStorage.setItem('tennisPlayers', JSON.stringify(players));
-        }
+            <div id="profileEdit" style="display: none;">
+                <h2>프로필 수정</h2>
+                <form id="profileForm" class="form">
+                    <div class="form-group">
+                        <label for="editNickname">닉네임</label>
+                        <input type="text" id="editNickname" required>
+                    </div>
 
-        function loadData() {
-            const savedProfile = localStorage.getItem('tennisProfile');
-            const savedMatches = localStorage.getItem('tennisMatches');
-            const savedPlayers = localStorage.getItem('tennisPlayers');
+                    <div class="form-group">
+                        <label for="editExperience">구력</label>
+                        <select id="editExperience" required>
+                            <option value="1년 미만">1년 미만</option>
+                            <option value="1-2년">1-2년</option>
+                            <option value="3-5년">3-5년</option>
+                            <option value="5년 이상">5년 이상</option>
+                        </select>
+                    </div>
 
-            if (savedProfile) myProfile = JSON.parse(savedProfile);
-            if (savedMatches) matches = JSON.parse(savedMatches);
-            if (savedPlayers) players = JSON.parse(savedPlayers);
-        }
+                    <div class="form-group">
+                        <label for="editPlayStyle">플레이 스타일</label>
+                        <select id="editPlayStyle">
+                            <option value="">선택</option>
+                            <option value="베이스라이너">베이스라이너</option>
+                            <option value="네트플레이어">네트플레이어</option>
+                            <option value="올라운더">올라운더</option>
+                            <option value="카운터펀처">카운터펀처</option>
+                        </select>
+                    </div>
 
-        // 모달 외부 클릭 시 닫기
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                closeModal();
-            }
-        }
-    </script>
+                    <div class="form-group">
+                        <label for="editHand">주손</label>
+                        <select id="editHand" required>
+                            <option value="오른손">오른손</option>
+                            <option value="왼손">왼손</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">저장</button>
+                    <button type="button" id="cancelEditBtn" class="btn btn-secondary">취소</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 회원가입 모달 -->
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <h2>TennisMate 시작하기</h2>
+                <form id="signupForm" class="form">
+                    <div class="form-group">
+                        <label for="nickname">닉네임</label>
+                        <input type="text" id="nickname" placeholder="사용할 닉네임 입력" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="experience">구력</label>
+                        <select id="experience" required>
+                            <option value="">선택</option>
+                            <option value="1년 미만">1년 미만</option>
+                            <option value="1-2년">1-2년</option>
+                            <option value="3-5년">3-5년</option>
+                            <option value="5년 이상">5년 이상</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="playStyle">플레이 스타일</label>
+                        <select id="playStyle">
+                            <option value="">선택</option>
+                            <option value="베이스라이너">베이스라이너</option>
+                            <option value="네트플레이어">네트플레이어</option>
+                            <option value="올라운더">올라운더</option>
+                            <option value="카운터펀처">카운터펀처</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hand">주손</label>
+                        <select id="hand" required>
+                            <option value="">선택</option>
+                            <option value="오른손">오른손</option>
+                            <option value="왼손">왼손</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">시작하기</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast 알림 -->
+    <div id="toast" class="toast"></div>
+
+    <script src="/app.js"></script>
 </body>
 </html>
