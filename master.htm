@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>배드민턴 분석 마스터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #000; color: #fff; font-family: sans-serif; }
+        .neon-green { color: #39ff14; }
+        .card { background-color: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        input, select, textarea { background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 12px; }
+        button { cursor: pointer; transition: 0.2s; font-weight: bold; }
+        button:active { transform: scale(0.96); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="p-4 pb-24">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-2xl font-bold text-center mb-6 neon-green italic text-shadow">🏸 PRO ANALYTICS</h1>
+
+        <div class="flex justify-around mb-6 text-xs border-b border-gray-800 pb-2">
+            <button onclick="openTab('p-tab')" class="hover:neon-green">프로필등록</button>
+            <button onclick="openTab('r-tab')" class="hover:neon-green">경기기록</button>
+            <button onclick="openTab('s-tab')" class="hover:neon-green">분석/순위</button>
+        </div>
+
+        <div id="p-tab" class="tab-content active">
+            <div class="card">
+                <h2 class="text-lg font-bold mb-4 neon-green">👤 선수 상세 프로필</h2>
+                <input type="text" id="p_name" placeholder="이름 (필수)">
+                <input type="number" id="p_age" placeholder="나이">
+                <input type="text" id="p_career" placeholder="구력 (예: 2년)">
+                <select id="p_hand">
+                    <option value="오른손">포핸드: 오른손</option>
+                    <option value="왼손">포핸드: 왼손</option>
+                </select>
+                <select id="p_back">
+                    <option value="원핸드">백핸드: 원핸드</option>
+                    <option value="투핸드">백핸드: 투핸드</option>
+                </select>
+                <select id="p_style">
+                    <option value="공격형">스타일: 공격형</option>
+                    <option value="수비형">스타일: 수비형</option>
+                    <option value="올라운드">스타일: 올라운드</option>
+                    <option value="네트플레이">스타일: 네트플레이</option>
+                    <option value="베이스라인">스타일: 베이스라인</option>
+                </select>
+                <button onclick="savePlayer()" class="w-full bg-[#39ff14] text-black py-3 rounded-lg">선수 저장</button>
+            </div>
+            <div id="playerList" class="mt-4 space-y-2 text-xs text-gray-500"></div>
+        </div>
+
+        <div id="r-tab" class="tab-content">
+            <div class="card">
+                <h2 class="text-lg font-bold mb-4 neon-green">📝 경기 분석 기록</h2>
+                <input type="date" id="m_date">
+                <select id="m_type"><option value="단식">단식</option><option value="복식">복식</option></select>
+                <select id="m_me"><option value="">내 이름 선택</option></select>
+                <select id="m_partner"><option value="없음">파트너 선택 (복식 전용)</option></select>
+                <input type="text" id="m_enemy" placeholder="상대 선수 이름">
+                <textarea id="m_note" placeholder="상대 특징 (예: 드라이브가 좋음, 백핸드 실수 많음)"></textarea>
+                <div class="flex gap-2">
+                    <button onclick="saveMatch('승')" class="flex-1 bg-blue-600 py-3 rounded-lg">승리</button>
+                    <button onclick="saveMatch('패')" class="flex-1 bg-red-600 py-3 rounded-lg">패배</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="s-tab" class="tab-content">
+            <div class="card mb-4">
+                <h2 class="text-sm font-bold mb-4 neon-green italic text-center">🏆 종합 순위 (승률)</h2>
+                <div id="rankingList" class="space-y-2 text-sm"></div>
+            </div>
+            <div class="card">
+                <h2 class="text-sm font-bold mb-4 neon-green italic text-center">🤝 파트너별 승률</h2>
+                <div id="partnerRanking" class="space-y-2 text-xs text-gray-400"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let players = JSON.parse(localStorage.getItem('m_players')) || [];
+        let matches = JSON.parse(localStorage.getItem('m_matches')) || [];
+
+        function openTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            render();
+        }
+
+        function savePlayer() {
+            const p = {
+                name: document.getElementById('p_name').value,
+                age: document.getElementById('p_age').value,
+                career: document.getElementById('p_career').value,
+                hand: document.getElementById('p_hand').value,
+                back: document.getElementById('p_back').value,
+                style: document.getElementById('p_style').value
+            };
+            if(!p.name) return alert("이름을 입력하세요!");
+            players.push(p);
+            localStorage.setItem('m_players', JSON.stringify(players));
+            alert("저장 완료!");
+            render();
+        }
+
+        function saveMatch(res) {
+            const m = {
+                date: document.getElementById('m_date').value || new Date().toLocaleDateString(),
+                type: document.getElementById('m_type').value,
+                me: document.getElementById('m_me').value,
+                partner: document.getElementById('m_partner').value,
+                enemy: document.getElementById('m_enemy').value,
+                note: document.getElementById('m_note').value,
+                res: res
+            };
+            if(!m.me || !m.enemy) return alert("이름을 입력하세요!");
+            matches.unshift(m);
+            localStorage.setItem('m_matches', JSON.stringify(matches));
+            alert("기록 완료!");
+            render();
+        }
+
+        function render() {
+            const opts = players.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+            document.getElementById('m_me').innerHTML = `<option value="">내 이름 선택</option>` + opts;
+            document.getElementById('m_partner').innerHTML = `<option value="없음">없음(단식)</option>` + opts;
+            
+            document.getElementById('playerList').innerHTML = players.map(p => `<div>${p.name} (${p.style})</div>`).join('');
+
+            const stats = {};
+            players.forEach(p => stats[p.name] = {w:0, t:0});
+            matches.forEach(m => {
+                if(stats[m.me]) { stats[m.me].t++; if(m.res==='승') stats[m.me].w++; }
+                if(m.partner!=='없음' && stats[m.partner]) { stats[m.partner].t++; if(m.res==='승') stats[m.partner].w++; }
+            });
+
+            const rank = Object.keys(stats).map(n => ({
+                n, r: stats[n].t ? ((stats[n].w/stats[n].t)*100).toFixed(1) : 0, ...stats[n]
+            })).sort((a,b) => b.r - a.r);
+
+            document.getElementById('rankingList').innerHTML = rank.map((s,i) => `
+                <div class="flex justify-between border-b border-gray-900 pb-1">
+                    <span>${i+1}. ${s.n}</span>
+                    <span class="neon-green">${s.r}% <span class="text-[10px] text-gray-600">(${s.w}승/${s.t}전)</span></span>
+                </div>
+            `).join('');
+
+            const pairs = {};
+            matches.filter(m => m.type === '복식' && m.partner !== '없음').forEach(m => {
+                const k = [m.me, m.partner].sort().join(" + ");
+                if(!pairs[k]) pairs[k] = {w:0, t:0};
+                pairs[k].t++; if(m.res==='승') pairs[k].w++;
+            });
+
+            document.getElementById('partnerRanking').innerHTML = Object.keys(pairs).map(k => `
+                <div class="flex justify-between"><span>${k}</span><span>${((pairs[k].w/pairs[k].t)*100).toFixed(1)}%</span></div>
+            `).join('');
+        }
+        render();
+    </script>
+</body>
+</html>
