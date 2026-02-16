@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -771,6 +772,68 @@
             background-size: 20px;
         }
 
+        /* 설명서 모달 */
+        .manual-modal {
+            max-width: 800px;
+            max-height: 85vh;
+        }
+
+        .manual-content {
+            line-height: 1.8;
+        }
+
+        .manual-content h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            color: var(--neon-green);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--neon-green);
+            padding-left: 1rem;
+        }
+
+        .manual-content h4 {
+            font-size: 1.1rem;
+            color: var(--text-white);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+
+        .manual-content p {
+            margin-bottom: 1rem;
+            color: var(--text-gray);
+        }
+
+        .manual-content ul, .manual-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-gray);
+        }
+
+        .manual-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .manual-content strong {
+            color: var(--text-white);
+        }
+
+        .manual-highlight {
+            background: rgba(57, 255, 20, 0.1);
+            border-left: 3px solid var(--neon-green);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .manual-warning {
+            background: rgba(255, 23, 68, 0.1);
+            border-left: 3px solid #ff1744;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: var(--text-white);
+        }
+
         /* 스크롤바 */
         ::-webkit-scrollbar {
             width: 4px;
@@ -989,6 +1052,11 @@
 
         <!-- 공유 탭 -->
         <div id="share" class="tab-content">
+            <div class="section-title">사용 방법</div>
+            <div class="card">
+                <button class="btn btn-secondary" onclick="showManual()">📖 사용 설명서 보기</button>
+            </div>
+
             <div class="section-title">백업</div>
             <div class="card">
                 <button class="btn" onclick="exportData()">데이터 내보내기</button>
@@ -1012,6 +1080,17 @@
                     <button class="modal-close" onclick="closeModal()">닫기</button>
                 </div>
                 <div id="modalContent"></div>
+            </div>
+        </div>
+
+        <!-- 설명서 모달 -->
+        <div id="manualModal" class="modal">
+            <div class="modal-content manual-modal">
+                <div class="modal-header">
+                    <div class="modal-title">📖 사용 설명서</div>
+                    <button class="modal-close" onclick="closeManual()">닫기</button>
+                </div>
+                <div class="manual-content" id="manualContent"></div>
             </div>
         </div>
     </div>
@@ -1607,6 +1686,111 @@
             document.getElementById('playerModal').classList.remove('active');
         }
 
+        function showManual() {
+            const content = `
+                <h3>🎾 니지스트링 사용 방법</h3>
+                
+                <h4>1. 경기 기록하기</h4>
+                <ol>
+                    <li>'경기 기록' 탭 선택</li>
+                    <li>날짜와 경기 형식(단식/복식) 선택</li>
+                    <li>선수 이름 입력 (단식: 상대만, 복식: 파트너 + 상대 2명)</li>
+                    <li>점수 입력 (타이브레이크 있으면 체크)</li>
+                    <li>'경기 저장' 클릭</li>
+                </ol>
+
+                <h4>2. 통계 확인하기</h4>
+                <ul>
+                    <li><strong>전체 통계:</strong> 총 경기, 승패, 승률</li>
+                    <li><strong>선수 순위:</strong> 모든 선수의 승률 기반 순위</li>
+                    <li><strong>파트너별 승률:</strong> 어떤 파트너와 잘 맞는지 확인</li>
+                    <li><strong>상대별 승률:</strong> 각 상대와의 전적 분석</li>
+                </ul>
+
+                <h4>3. 데이터 백업하기</h4>
+                <div class="manual-highlight">
+                    <strong>정기적으로 백업하세요!</strong>
+                    <ol>
+                        <li>'공유' 탭 → '데이터 내보내기'</li>
+                        <li>JSON 파일이 다운로드됨</li>
+                        <li>안전한 곳에 보관</li>
+                    </ol>
+                </div>
+
+                <h4>4. 데이터 복원하기</h4>
+                <ul>
+                    <li>'공유' 탭 → '파일 선택'</li>
+                    <li>백업한 JSON 파일 선택</li>
+                    <li>선수 정보가 자동으로 추가됨</li>
+                </ul>
+
+                <h3>📱 앱 공유 방법</h3>
+                
+                <h4>방법 1: 파일 직접 공유</h4>
+                <ul>
+                    <li>HTML 파일을 카카오톡/이메일로 전송</li>
+                    <li>받은 사람은 파일 열기만 하면 됨</li>
+                    <li>각자 독립적으로 데이터 관리</li>
+                </ul>
+
+                <h4>방법 2: 웹 호스팅 (추천)</h4>
+                <div class="manual-highlight">
+                    <strong>GitHub Pages (무료)</strong>
+                    <ol>
+                        <li>GitHub 계정 생성 (github.com)</li>
+                        <li>새 저장소 만들기 (Public)</li>
+                        <li>HTML 파일을 'index.html'로 이름 변경</li>
+                        <li>파일 업로드</li>
+                        <li>Settings → Pages에서 배포 설정</li>
+                        <li>생성된 URL 공유!</li>
+                    </ol>
+                </div>
+
+                <div class="manual-highlight">
+                    <strong>Netlify (더 쉬움, 무료)</strong>
+                    <ol>
+                        <li>netlify.com 접속 후 가입</li>
+                        <li>'Add new site' → 'Deploy manually'</li>
+                        <li>HTML 파일 드래그 앤 드롭</li>
+                        <li>자동으로 URL 생성!</li>
+                    </ol>
+                </div>
+
+                <h4>방법 3: 모바일 홈 화면 추가</h4>
+                <p><strong>iOS:</strong> Safari → 공유 버튼(↑) → '홈 화면에 추가'</p>
+                <p><strong>Android:</strong> Chrome → 메뉴(⋮) → '홈 화면에 추가'</p>
+
+                <h3>❓ 자주 묻는 질문</h3>
+
+                <h4>Q: 데이터가 사라졌어요</h4>
+                <p>브라우저 캐시를 삭제하면 데이터가 사라질 수 있습니다. 정기적으로 백업하세요!</p>
+
+                <h4>Q: 다른 기기에서도 사용하고 싶어요</h4>
+                <p>현재 기기에서 '데이터 내보내기' → 다른 기기에서 '데이터 가져오기'</p>
+
+                <h4>Q: 친구들과 실시간으로 공유하고 싶어요</h4>
+                <div class="manual-warning">
+                    <strong>⚠️ 현재 버전은 개인용입니다</strong><br>
+                    각자 자신의 경기를 기록하고, '데이터 내보내기/가져오기'로 선수 정보를 공유할 수 있습니다.
+                </div>
+
+                <h4>Q: 경기를 잘못 기록했어요</h4>
+                <p>안타깝게도 현재 개별 경기 수정 기능은 없습니다. '모든 데이터 삭제' 후 다시 입력하거나, JSON 파일을 수정 후 가져오기 하세요.</p>
+
+                <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--light-gray); text-align: center; color: var(--text-gray);">
+                    <p>🎾 니지스트링으로 테니스 실력을 기록하고 분석하세요! 🎾</p>
+                    <p style="font-size: 0.875rem;">버전 1.0 | 2025</p>
+                </div>
+            `;
+            
+            document.getElementById('manualContent').innerHTML = content;
+            document.getElementById('manualModal').classList.add('active');
+        }
+
+        function closeManual() {
+            document.getElementById('manualModal').classList.remove('active');
+        }
+
         function exportData() {
             const data = {
                 version: '1.0',
@@ -1687,6 +1871,7 @@
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 closeModal();
+                closeManual();
             }
         }
     </script>
