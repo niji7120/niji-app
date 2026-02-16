@@ -300,7 +300,63 @@
             font-weight: 700;
         }
 
-        /* 파트너 통계 */
+        /* 순위표 */
+        .ranking-item {
+            background: var(--mid-gray);
+            border: 1px solid var(--light-gray);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+        }
+
+        .ranking-item.me {
+            border: 2px solid var(--neon-green);
+            background: rgba(57, 255, 20, 0.05);
+        }
+
+        .ranking-number {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            color: var(--neon-green);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .ranking-item.me .ranking-number {
+            text-shadow: 0 0 20px var(--neon-green);
+        }
+
+        .ranking-info {
+            flex: 1;
+        }
+
+        .ranking-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-white);
+        }
+
+        .ranking-item.me .ranking-name {
+            color: var(--neon-green);
+        }
+
+        .ranking-stats {
+            font-size: 0.875rem;
+            color: var(--text-gray);
+        }
+
+        .ranking-winrate {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            color: var(--neon-green);
+            text-align: right;
+        }
+
+        /* 파트너/상대 통계 */
         .partner-item {
             background: var(--mid-gray);
             border: 1px solid var(--light-gray);
@@ -319,12 +375,20 @@
             background: var(--neon-green);
         }
 
+        .partner-item.opponent::before {
+            background: #ff1744;
+        }
+
         .partner-name {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 1.5rem;
             letter-spacing: 0.05em;
             color: var(--neon-green);
             margin-bottom: 0.5rem;
+        }
+
+        .partner-item.opponent .partner-name {
+            color: #ff1744;
         }
 
         .partner-stats-row {
@@ -343,6 +407,10 @@
             font-family: 'Bebas Neue', sans-serif;
             font-size: 2rem;
             color: var(--neon-green);
+        }
+
+        .partner-item.opponent .partner-winrate {
+            color: #ff1744;
         }
 
         /* 프로필 */
@@ -900,16 +968,14 @@
                 </div>
             </div>
 
-            <div class="section-title">내 순위</div>
-            <div class="card">
-                <div style="text-align: center; padding: 2rem 0;">
-                    <div class="rank-display" id="myRank">-</div>
-                    <div class="rank-points" id="myPoints">0 포인트</div>
-                </div>
-            </div>
+            <div class="section-title">선수 순위</div>
+            <div id="rankingList"></div>
 
             <div class="section-title">파트너별 승률</div>
             <div id="partnerStats"></div>
+
+            <div class="section-title">상대별 승률</div>
+            <div id="opponentStats"></div>
         </div>
 
         <!-- 선수 탭 -->
@@ -1247,21 +1313,118 @@
             document.getElementById('singlesRecord').textContent = `${singlesWins}—${singles.length - singlesWins}`;
             document.getElementById('doublesRecord').textContent = `${doublesWins}—${doubles.length - doublesWins}`;
             
-            // 순위 계산 (승: 3점, 패: 0점)
-            const points = wins * 3;
-            document.getElementById('myPoints').textContent = `${points} 포인트`;
-            
-            // 순위 등급 결정
-            let rank = 'Beginner';
-            if (points >= 100) rank = 'Master';
-            else if (points >= 60) rank = 'Expert';
-            else if (points >= 30) rank = 'Advanced';
-            else if (points >= 10) rank = 'Intermediate';
-            
-            document.getElementById('myRank').textContent = rank;
+            // 전체 선수 순위 업데이트
+            updateRankings();
             
             // 파트너별 승률 업데이트
             updatePartnerStats();
+            
+            // 상대별 승률 업데이트
+            updateOpponentStats();
+        }
+
+        function updateRankings() {
+            const allPlayers = [];
+            
+            // 내 전적 계산
+            const myTotal = matches.length;
+            const myWins = matches.filter(m => {
+                let myScore = m.myGames;
+                let oppScore = m.oppGames;
+                if (m.myTiebreak !== undefined) {
+                    if (m.myTiebreak > m.oppTiebreak) myScore++;
+                    else oppScore++;
+                }
+                return myScore > oppScore;
+            }).length;
+            const myLosses = myTotal - myWins;
+            const myWinRate = myTotal > 0 ? (myWins / myTotal) * 100 : 0;
+            
+            if (myProfile && myProfile.nickname) {
+                allPlayers.push({
+                    name: myProfile.nickname,
+                    total: myTotal,
+                    wins: myWins,
+                    losses: myLosses,
+                    winRate: myWinRate,
+                    isMe: true
+                });
+            }
+            
+            // 다른 선수들 전적 계산
+            Object.values(players).forEach(player => {
+                const playerMatches = matches.filter(m => 
+                    m.opponent1 === player.name || m.opponent2 === player.name || m.partner === player.name
+                );
+                
+                if (playerMatches.length === 0) return;
+                
+                let wins = 0;
+                let losses = 0;
+                
+                playerMatches.forEach(match => {
+                    let myScore = match.myGames;
+                    let oppScore = match.oppGames;
+                    if (match.myTiebreak !== undefined) {
+                        if (match.myTiebreak > match.oppTiebreak) myScore++;
+                        else oppScore++;
+                    }
+                    
+                    const iWon = myScore > oppScore;
+                    const isOpponent = match.opponent1 === player.name || match.opponent2 === player.name;
+                    const isPartner = match.partner === player.name;
+                    
+                    if (isOpponent) {
+                        if (iWon) losses++;
+                        else wins++;
+                    } else if (isPartner) {
+                        if (iWon) wins++;
+                        else losses++;
+                    }
+                });
+                
+                const total = wins + losses;
+                const winRate = total > 0 ? (wins / total) * 100 : 0;
+                
+                allPlayers.push({
+                    name: player.name,
+                    total: total,
+                    wins: wins,
+                    losses: losses,
+                    winRate: winRate,
+                    isMe: false
+                });
+            });
+            
+            // 승률 기준으로 정렬 (승률 같으면 승수로)
+            allPlayers.sort((a, b) => {
+                if (b.winRate !== a.winRate) return b.winRate - a.winRate;
+                return b.wins - a.wins;
+            });
+            
+            const container = document.getElementById('rankingList');
+            
+            if (allPlayers.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🏆</div>
+                        <div class="empty-title">순위 없음</div>
+                        <div class="empty-text">경기를 기록하면 순위가 표시됩니다</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = allPlayers.map((player, index) => `
+                <div class="ranking-item ${player.isMe ? 'me' : ''}">
+                    <div class="ranking-number">${index + 1}</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">${player.name}${player.isMe ? ' (나)' : ''}</div>
+                        <div class="ranking-stats">${player.wins}승 ${player.losses}패 · ${player.total}경기</div>
+                    </div>
+                    <div class="ranking-winrate">${player.winRate.toFixed(1)}%</div>
+                </div>
+            `).join('');
         }
 
         function updatePartnerStats() {
@@ -1316,6 +1479,69 @@
                     <div class="partner-stats-row">
                         <div class="partner-record">${partner.wins}승 ${partner.losses}패 (${partner.total}경기)</div>
                         <div class="partner-winrate">${partner.winRate}%</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateOpponentStats() {
+            const opponentData = {};
+            
+            matches.forEach(match => {
+                // 상대 선수들 수집
+                const opponents = [];
+                if (match.opponent1) opponents.push(match.opponent1);
+                if (match.opponent2) opponents.push(match.opponent2);
+                
+                opponents.forEach(opponent => {
+                    if (!opponentData[opponent]) {
+                        opponentData[opponent] = { total: 0, wins: 0 };
+                    }
+                    
+                    opponentData[opponent].total++;
+                    
+                    let myScore = match.myGames;
+                    let oppScore = match.oppGames;
+                    if (match.myTiebreak !== undefined) {
+                        if (match.myTiebreak > match.oppTiebreak) myScore++;
+                        else oppScore++;
+                    }
+                    
+                    if (myScore > oppScore) {
+                        opponentData[opponent].wins++;
+                    }
+                });
+            });
+            
+            const container = document.getElementById('opponentStats');
+            
+            if (Object.keys(opponentData).length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⚔️</div>
+                        <div class="empty-title">상대 기록 없음</div>
+                        <div class="empty-text">경기를 기록해보세요</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const sortedOpponents = Object.entries(opponentData)
+                .map(([name, data]) => ({
+                    name,
+                    total: data.total,
+                    wins: data.wins,
+                    losses: data.total - data.wins,
+                    winRate: Math.round((data.wins / data.total) * 100)
+                }))
+                .sort((a, b) => b.winRate - a.winRate);
+            
+            container.innerHTML = sortedOpponents.map(opponent => `
+                <div class="partner-item opponent">
+                    <div class="partner-name">${opponent.name}</div>
+                    <div class="partner-stats-row">
+                        <div class="partner-record">${opponent.wins}승 ${opponent.losses}패 (${opponent.total}경기)</div>
+                        <div class="partner-winrate">${opponent.winRate}%</div>
                     </div>
                 </div>
             `).join('');
