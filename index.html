@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
     <link rel="manifest" href="manifest.json">
-    <title>에이스</title>
+    <title>니지스트링</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         * {
@@ -285,6 +285,66 @@
             font-weight: 700;
         }
 
+        /* 순위 */
+        .rank-display {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 5rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 40px rgba(57, 255, 20, 0.5);
+            margin-bottom: 0.5rem;
+        }
+
+        .rank-points {
+            font-size: 1rem;
+            color: var(--text-gray);
+            font-weight: 700;
+        }
+
+        /* 파트너 통계 */
+        .partner-item {
+            background: var(--mid-gray);
+            border: 1px solid var(--light-gray);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .partner-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--neon-green);
+        }
+
+        .partner-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 0.05em;
+            color: var(--neon-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .partner-stats-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .partner-record {
+            font-size: 1rem;
+            color: var(--text-gray);
+        }
+
+        .partner-winrate {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            color: var(--neon-green);
+        }
+
         /* 프로필 */
         .profile-hero {
             background: var(--mid-gray);
@@ -391,6 +451,13 @@
             padding: 0.25rem 0.75rem;
             font-size: 0.7rem;
             font-weight: 700;
+        }
+
+        .match-players {
+            font-size: 0.85rem;
+            color: var(--text-white);
+            margin: 0.5rem 0;
+            font-weight: 500;
         }
 
         .match-result {
@@ -668,7 +735,7 @@
         <!-- 헤더 -->
         <div class="app-header">
             <div class="header-content">
-                <div class="logo">에이스</div>
+                <div class="logo">니지스트링</div>
                 <div class="user-chip" id="userChip">시작</div>
             </div>
         </div>
@@ -832,6 +899,17 @@
                     <div class="stat-label">복식</div>
                 </div>
             </div>
+
+            <div class="section-title">내 순위</div>
+            <div class="card">
+                <div style="text-align: center; padding: 2rem 0;">
+                    <div class="rank-display" id="myRank">-</div>
+                    <div class="rank-points" id="myPoints">0 포인트</div>
+                </div>
+            </div>
+
+            <div class="section-title">파트너별 승률</div>
+            <div id="partnerStats"></div>
         </div>
 
         <!-- 선수 탭 -->
@@ -1106,12 +1184,17 @@
                     scoreDisplay += `(${match.myTiebreak})`;
                 }
 
+                const playersInfo = match.matchType === '단식' 
+                    ? `vs ${match.opponent}`
+                    : `${match.partner} & 나 vs ${match.opponent}`;
+
                 return `
                     <div class="match-item ${resultClass}">
                         <div class="match-header">
                             <div class="match-date">${match.date}</div>
                             <div class="match-type">${match.matchType}</div>
                         </div>
+                        <div class="match-players">${playersInfo}</div>
                         <div class="match-result ${resultClass}">${resultText}</div>
                         <div class="match-score">${scoreDisplay}</div>
                         ${match.notes ? `<div class="match-notes">${match.notes}</div>` : ''}
@@ -1163,6 +1246,79 @@
 
             document.getElementById('singlesRecord').textContent = `${singlesWins}—${singles.length - singlesWins}`;
             document.getElementById('doublesRecord').textContent = `${doublesWins}—${doubles.length - doublesWins}`;
+            
+            // 순위 계산 (승: 3점, 패: 0점)
+            const points = wins * 3;
+            document.getElementById('myPoints').textContent = `${points} 포인트`;
+            
+            // 순위 등급 결정
+            let rank = 'Beginner';
+            if (points >= 100) rank = 'Master';
+            else if (points >= 60) rank = 'Expert';
+            else if (points >= 30) rank = 'Advanced';
+            else if (points >= 10) rank = 'Intermediate';
+            
+            document.getElementById('myRank').textContent = rank;
+            
+            // 파트너별 승률 업데이트
+            updatePartnerStats();
+        }
+
+        function updatePartnerStats() {
+            const partnerData = {};
+            
+            matches.filter(m => m.matchType === '복식' && m.partner).forEach(match => {
+                const partner = match.partner;
+                if (!partnerData[partner]) {
+                    partnerData[partner] = { total: 0, wins: 0 };
+                }
+                
+                partnerData[partner].total++;
+                
+                let myScore = match.myGames;
+                let oppScore = match.oppGames;
+                if (match.myTiebreak !== undefined) {
+                    if (match.myTiebreak > match.oppTiebreak) myScore++;
+                    else oppScore++;
+                }
+                
+                if (myScore > oppScore) {
+                    partnerData[partner].wins++;
+                }
+            });
+            
+            const container = document.getElementById('partnerStats');
+            
+            if (Object.keys(partnerData).length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🤝</div>
+                        <div class="empty-title">파트너 기록 없음</div>
+                        <div class="empty-text">복식 경기를 기록해보세요</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const sortedPartners = Object.entries(partnerData)
+                .map(([name, data]) => ({
+                    name,
+                    total: data.total,
+                    wins: data.wins,
+                    losses: data.total - data.wins,
+                    winRate: Math.round((data.wins / data.total) * 100)
+                }))
+                .sort((a, b) => b.winRate - a.winRate);
+            
+            container.innerHTML = sortedPartners.map(partner => `
+                <div class="partner-item">
+                    <div class="partner-name">${partner.name}</div>
+                    <div class="partner-stats-row">
+                        <div class="partner-record">${partner.wins}승 ${partner.losses}패 (${partner.total}경기)</div>
+                        <div class="partner-winrate">${partner.winRate}%</div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function updatePlayersList() {
