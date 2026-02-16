@@ -568,6 +568,48 @@
             line-height: 1.6;
         }
 
+        /* 경기 수정/삭제 버튼 */
+        .match-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-edit, .btn-delete {
+            flex: 1;
+            padding: 0.7rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-edit {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: var(--secondary);
+        }
+
+        .btn-delete {
+            background: #ff4444;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #cc0000;
+        }
+
+        .btn-edit:active, .btn-delete:active {
+            transform: scale(0.95);
+        }
+
         /* 스코어 입력 */
         .score-input-container {
             background: var(--mid-gray);
@@ -1348,6 +1390,10 @@
                         <div class="match-result ${resultClass}">${resultText}</div>
                         <div class="match-score">${scoreDisplay}</div>
                         ${match.notes ? `<div class="match-notes">${match.notes}</div>` : ''}
+                        <div class="match-actions">
+                            <button class="btn-edit" onclick="editMatch(${match.id})">✏️ 수정</button>
+                            <button class="btn-delete" onclick="deleteMatch(${match.id})">🗑️ 삭제</button>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -1689,6 +1735,65 @@
 
         function closeModal() {
             document.getElementById('playerModal').classList.remove('active');
+        }
+
+        function deleteMatch(matchId) {
+            if (!confirm('이 경기 기록을 삭제하시겠습니까?')) {
+                return;
+            }
+
+            const index = matches.findIndex(m => m.id === matchId);
+            if (index !== -1) {
+                matches.splice(index, 1);
+                saveData();
+                updateUI();
+                alert('✓ 경기가 삭제되었습니다');
+            }
+        }
+
+        function editMatch(matchId) {
+            const match = matches.find(m => m.id === matchId);
+            if (!match) {
+                alert('✗ 경기를 찾을 수 없습니다');
+                return;
+            }
+
+            // 경기 기록 탭으로 이동
+            showTab('record');
+
+            // 폼에 데이터 채우기
+            document.getElementById('matchDate').value = match.date;
+            document.getElementById('matchType').value = match.matchType;
+            toggleMatchFields();
+
+            if (match.matchType === '복식') {
+                document.getElementById('partnerName').value = match.partner || '';
+                document.getElementById('opponent1Name').value = match.opponent1 || '';
+                document.getElementById('opponent2Name').value = match.opponent2 || '';
+            } else {
+                document.getElementById('opponent1Name').value = match.opponent1 || '';
+            }
+
+            document.getElementById('myGames').value = match.myGames;
+            document.getElementById('oppGames').value = match.oppGames;
+
+            if (match.myTiebreak !== undefined) {
+                document.getElementById('myTiebreak').value = match.myTiebreak;
+                document.getElementById('oppTiebreak').value = match.oppTiebreak;
+            }
+
+            document.getElementById('matchNotes').value = match.notes || '';
+
+            // 기존 경기 삭제 (수정 = 삭제 후 새로 저장)
+            const index = matches.findIndex(m => m.id === matchId);
+            if (index !== -1) {
+                matches.splice(index, 1);
+            }
+
+            // 스크롤을 폼 위치로
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            alert('📝 경기 정보를 수정하고 "경기 저장" 버튼을 눌러주세요');
         }
 
         function showManual() {
