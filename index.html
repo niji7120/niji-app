@@ -1825,54 +1825,29 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     
-                    let importedPlayers = 0;
-                    let importedMatches = 0;
-                    
-                    // 선수 정보 가져오기
                     if (data.players) {
+                        let count = 0;
                         Object.keys(data.players).forEach(name => {
                             if (name !== myProfile?.nickname) {
                                 if (!players[name]) {
                                     players[name] = data.players[name];
-                                    importedPlayers++;
+                                    count++;
                                 }
                             }
                         });
-                    }
-                    
-                    // 경기 기록 가져오기
-                    if (data.matches && Array.isArray(data.matches)) {
-                        data.matches.forEach(match => {
-                            // 중복 확인 (같은 날짜, 같은 상대와의 경기)
-                            const isDuplicate = matches.some(m => 
-                                m.date === match.date && 
-                                m.opponent1 === match.opponent1 &&
-                                m.myGames === match.myGames &&
-                                m.oppGames === match.oppGames
-                            );
-                            
-                            if (!isDuplicate) {
-                                matches.push(match);
-                                importedMatches++;
-                            }
-                        });
-                    }
-                    
-                    // 프로필 정보는 가져오지 않음 (내 프로필 유지)
-                    
-                    saveData();
-                    updateUI();
-                    
-                    document.getElementById('importStatus').innerHTML = `
-                        <div style="padding: 1rem; background: var(--mid-gray); border: 2px solid var(--neon-green); color: var(--neon-green); text-align: center; font-weight: 700;">
-                            ✓ 가져오기 완료<br>
-                            선수 ${importedPlayers}명 | 경기 ${importedMatches}개
-                        </div>
-                    `;
-                    
-                    setTimeout(() => {
-                        document.getElementById('importStatus').innerHTML = '';
-                    }, 3000);
+                        
+                        saveData();
+                        updateUI();
+                        
+                        document.getElementById('importStatus').innerHTML = `
+                            <div style="padding: 1rem; background: var(--mid-gray); border: 2px solid var(--neon-green); color: var(--neon-green); text-align: center; font-weight: 700;">
+                                ✓ ${count}명의 선수 정보 가져오기 완료
+                            </div>
+                        `;
+                        
+                        setTimeout(() => {
+                            document.getElementById('importStatus').innerHTML = '';
+                        }, 3000);
                     }
                 } catch (error) {
                     alert('✗ 파일 오류');
