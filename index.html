@@ -186,10 +186,10 @@
     display: flex; align-items: center; gap: 12px; padding: 12px 14px;
   }
   .player-avatar-sm {
-    width: 38px; height: 38px; border-radius: 50%;
+    width: 44px; height: 56px; border-radius: 8px;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
     display: flex; align-items: center; justify-content: center;
-    font-size: 15px; font-weight: 700; flex-shrink: 0;
+    font-size: 18px; font-weight: 700; flex-shrink: 0;
   }
   .player-info { flex: 1; min-width: 0; }
   .player-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
@@ -241,10 +241,15 @@
     padding: 24px; text-align: center; margin-bottom: 12px;
   }
   .profile-avatar-big {
-    width: 72px; height: 72px; border-radius: 50%;
+    width: 140px; height: 180px; border-radius: 16px;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
     display: flex; align-items: center; justify-content: center;
-    font-size: 30px; font-weight: 700; margin: 0 auto 12px;
+    font-size: 48px; font-weight: 700; margin: 0 auto 12px;
+    position: relative; overflow: hidden;
+  }
+  #avatarInitial {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%; position: relative; z-index: 1;
   }
   .profile-name-big { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
   .profile-sub { font-size: 12px; color: var(--text-muted); }
@@ -360,12 +365,21 @@
     <!-- ===== PROFILE PAGE ===== -->
     <div class="page active" id="page-profile">
       <div class="profile-hero">
-        <div class="profile-avatar-big" id="profileAvatarBig">A</div>
+        <div class="profile-avatar-big" id="profileAvatarBig" onclick="document.getElementById('photoUpload').click()" style="cursor:pointer;position:relative;overflow:hidden;">
+          <span id="avatarInitial">A</span>
+          <img id="avatarImage" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">
+        </div>
+        <input type="file" id="photoUpload" accept="image/*" style="display:none" onchange="uploadPhoto(this)">
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;cursor:pointer;" onclick="document.getElementById('photoUpload').click()">📷 사진 변경</div>
         <div class="profile-name-big" id="profileNameBig">선수</div>
         <div class="profile-sub" id="profileSubBig">정보 없음</div>
       </div>
-      <div class="section-title">프로필 수정</div>
-      <div class="card">
+      
+      <button class="btn btn-secondary" onclick="toggleProfileSettings()" style="margin-bottom:12px;">
+        ⚙️ <span id="settingsToggleText">프로필 설정 열기</span>
+      </button>
+      
+      <div class="card" id="profileSettings" style="display:none;">
         <div class="card-title">프로필 설정</div>
         <div class="form-group">
           <label class="form-label">이름</label>
@@ -650,7 +664,7 @@
 <script>
 // ===== STATE =====
 let state = {
-  profile: { name: '', age: '', career: '', hand: '', style: '' },
+  profile: { name: '', age: '', career: '', hand: '', style: '', photo: '' },
   matches: [],
   players: [],  // { id, name, memo }
   currentResult: null,
@@ -721,6 +735,38 @@ function doConfirm() {
 }
 
 // ===== PROFILE =====
+function toggleProfileSettings() {
+  const settings = document.getElementById('profileSettings');
+  const toggleText = document.getElementById('settingsToggleText');
+  if (settings.style.display === 'none') {
+    settings.style.display = 'block';
+    toggleText.textContent = '프로필 설정 닫기';
+  } else {
+    settings.style.display = 'none';
+    toggleText.textContent = '프로필 설정 열기';
+  }
+}
+
+function uploadPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  // Check file size (max 2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    showToast('⚠️ 사진 크기는 2MB 이하여야 합니다');
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    state.profile.photo = e.target.result;
+    save();
+    renderProfile();
+    showToast('📷 사진 업로드 완료!');
+  };
+  reader.readAsDataURL(file);
+}
+
 function saveProfile() {
   state.profile = {
     name: document.getElementById('profileName').value.trim() || '선수',
@@ -728,17 +774,35 @@ function saveProfile() {
     career: document.getElementById('profileCareer').value,
     hand: document.getElementById('profileHand').value,
     style: document.getElementById('profileStyle').value,
+    photo: state.profile.photo || '',
   };
   save();
   renderProfile();
+  document.getElementById('profileSettings').style.display = 'none';
+  document.getElementById('settingsToggleText').textContent = '프로필 설정 열기';
   showToast('✅ 프로필 저장 완료!');
 }
 function renderProfile() {
   const p = state.profile;
   const name = p.name || '선수';
   const initial = name.charAt(0).toUpperCase();
+  
+  // Update topbar avatar
   document.getElementById('avatarBtn').textContent = initial;
-  document.getElementById('profileAvatarBig').textContent = initial;
+  
+  // Update profile page avatar
+  const avatarInitial = document.getElementById('avatarInitial');
+  const avatarImage = document.getElementById('avatarImage');
+  if (p.photo) {
+    avatarInitial.style.display = 'none';
+    avatarImage.src = p.photo;
+    avatarImage.style.display = 'block';
+  } else {
+    avatarInitial.textContent = initial;
+    avatarInitial.style.display = 'flex';
+    avatarImage.style.display = 'none';
+  }
+  
   document.getElementById('profileNameBig').textContent = name;
   const sub = [p.age, p.career, p.hand, p.style].filter(Boolean).join(' · ') || '정보 없음';
   document.getElementById('profileSubBig').textContent = sub;
