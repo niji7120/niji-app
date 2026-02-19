@@ -175,6 +175,8 @@
   .rank-second .rank-num { color: #9ca3af; }
   .rank-third .rank-num { color: #cd7c2f; }
   .rank-rate { font-weight: 700; color: var(--accent); }
+  .rank-me td { background: rgba(124,106,247,.15) !important; border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); }
+  .rank-me:hover td { background: rgba(124,106,247,.25) !important; }
 
   /* ===== PLAYER LIST ===== */
   .player-list { list-style: none; }
@@ -504,7 +506,14 @@
     <!-- ===== STATS PAGE ===== -->
     <div class="page" id="page-stats">
       <div class="page-header">통계</div>
-      <div class="page-sub">나의 배드민턴 기록</div>
+      <div class="page-sub">
+        나의 
+        <select id="sportType" onchange="updateSportType()" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--accent);font-weight:700;padding:2px 8px;font-size:13px;outline:none;cursor:pointer;">
+          <option value="badminton">배드민턴</option>
+          <option value="tennis">테니스</option>
+        </select>
+        기록
+      </div>
 
       <div class="section-title">전체 통계</div>
       <div class="stat-grid">
@@ -629,18 +638,31 @@
     </div>
     <p style="font-size:13px;line-height:1.8;color:var(--text-muted);">
       <b style="color:var(--text)">1. 프로필 설정</b><br>
+      📷 프로필 사진을 업로드할 수 있습니다. (아바타 클릭)<br>
       이름, 나이대, 경력, 손잡이, 플레이 스타일을 저장하세요.<br><br>
+      
       <b style="color:var(--text)">2. 경기 기록</b><br>
-      날짜, 형식(단식/복식), 상대, 결과를 입력하세요. 스코어와 메모는 선택사항입니다.<br><br>
+      날짜, 형식(단식/복식), 상대, 결과를 입력하세요.<br>
+      스코어, 타이브레이크 점수, 메모는 선택사항입니다.<br>
+      예) 21:19 (11-9) - 일반 스코어와 타이브레이크 점수<br><br>
+      
       <b style="color:var(--text)">3. 통계</b><br>
-      입력한 경기를 바탕으로 승률, 형식별, 파트너별, 상대별 통계를 확인하세요.<br><br>
+      🏸 배드민턴 / 🎾 테니스 종목을 선택할 수 있습니다.<br>
+      <b>선수 순위:</b> 점수 시스템으로 순위가 매겨집니다.<br>
+      • 승리: +2점 / 패배: -1점<br>
+      • 정렬: 점수 → 승률 순<br>
+      • 내 순위는 보라색으로 강조 표시됩니다.<br>
+      승률, 형식별, 파트너별, 상대별 통계를 확인하세요.<br><br>
+      
       <b style="color:var(--text)">4. 선수 목록</b><br>
-      함께 경기한 선수를 등록하고 수정/삭제할 수 있습니다.<br>
-      ✏️ 버튼으로 이름을 수정하고, 🗑️ 버튼으로 삭제하세요.<br>
-      📝 버튼으로 선수 특징을 메모할 수 있습니다.<br>
-      예) 수비 스타일로 발리 잘 안 들어옴<br><br>
-      <b style="color:var(--text)">5. 백업</b><br>
-      데이터 내보내기로 백업하고, 가져오기로 복원하세요.
+      함께 경기한 선수를 등록하고 관리할 수 있습니다.<br>
+      • ✏️ 버튼: 이름 수정<br>
+      • 📝 버튼: 선수 특징 메모 (예: 수비 스타일, 발리 약함)<br>
+      • 🗑️ 버튼: 선수 삭제<br><br>
+      
+      <b style="color:var(--text)">5. 백업 & 공유</b><br>
+      💾 데이터 내보내기: JSON 파일로 백업 저장<br>
+      📂 가져오기: 백업 파일에서 복원
     </p>
   </div>
 </div>
@@ -670,6 +692,7 @@ let state = {
   currentResult: null,
   nextMatchId: 1,
   nextPlayerId: 1,
+  sportType: 'badminton',
 };
 
 let confirmCallback = null;
@@ -690,6 +713,11 @@ function load() {
     state.players = state.players.map(p => ({ memo: '', ...p }));
     if (!state.nextMatchId) state.nextMatchId = state.matches.length + 1;
     if (!state.nextPlayerId) state.nextPlayerId = state.players.length + 1;
+    if (!state.sportType) state.sportType = 'badminton';
+    // restore sport type selector
+    if (document.getElementById('sportType')) {
+      document.getElementById('sportType').value = state.sportType;
+    }
   }
 }
 
@@ -919,6 +947,13 @@ function deleteMatch(id) {
 }
 
 // ===== STATS =====
+function updateSportType() {
+  state.sportType = document.getElementById('sportType').value;
+  save();
+  renderStats();
+  showToast(`📊 ${state.sportType === 'badminton' ? '배드민턴' : '테니스'} 통계로 변경`);
+}
+
 function renderStats() {
   const ms = state.matches;
   const total = ms.length;
@@ -944,25 +979,91 @@ function renderStats() {
 }
 
 function renderRanking() {
+  const myName = state.profile.name || '나';
   const playerMap = {};
+  
+  // 내 점수 계산
+  let myStats = { w: 0, l: 0, points: 0 };
+  
   state.matches.forEach(m => {
-    [m.opponent, m.opponent2].filter(Boolean).forEach(name => {
-      if (!playerMap[name]) playerMap[name] = { w: 0, l: 0 };
-      if (m.result === 'win') playerMap[name].l++; else playerMap[name].w++;
+    // 내 전적 계산
+    if (m.result === 'win') {
+      myStats.w++;
+      myStats.points += 2;
+    } else {
+      myStats.l++;
+      myStats.points -= 1;
+    }
+    
+    // 다른 선수들 전적 계산
+    [m.opponent, m.opponent2, m.partner].filter(Boolean).forEach(name => {
+      if (name === myName) return;
+      
+      if (!playerMap[name]) playerMap[name] = { w: 0, l: 0, points: 0 };
+      
+      // 상대편인 경우
+      if (name === m.opponent || name === m.opponent2) {
+        if (m.result === 'win') {
+          playerMap[name].l++;
+          playerMap[name].points -= 1;
+        } else {
+          playerMap[name].w++;
+          playerMap[name].points += 2;
+        }
+      }
+      // 파트너인 경우
+      else if (name === m.partner) {
+        if (m.result === 'win') {
+          playerMap[name].w++;
+          playerMap[name].points += 2;
+        } else {
+          playerMap[name].l++;
+          playerMap[name].points -= 1;
+        }
+      }
     });
   });
-  const sorted = Object.entries(playerMap).sort((a, b) => (b[1].w + b[1].l) - (a[1].w + a[1].l));
+  
+  // 나를 playerMap에 추가
+  if (state.matches.length > 0) {
+    playerMap[myName] = myStats;
+  }
+  
+  // 점수 우선, 승률 차순위로 정렬
+  const sorted = Object.entries(playerMap).sort((a, b) => {
+    const [nameA, dataA] = a;
+    const [nameB, dataB] = b;
+    
+    // 1순위: 점수
+    if (dataB.points !== dataA.points) {
+      return dataB.points - dataA.points;
+    }
+    
+    // 2순위: 승률
+    const totalA = dataA.w + dataA.l;
+    const totalB = dataB.w + dataB.l;
+    const rateA = totalA ? dataA.w / totalA : 0;
+    const rateB = totalB ? dataB.w / totalB : 0;
+    return rateB - rateA;
+  });
+  
   if (!sorted.length) {
-    document.getElementById('rankingCard').innerHTML = '<div class="empty-state"><div class="empty-icon">🏸</div><div class="empty-text">경기를 입력하면 순위가 표시됩니다</div></div>';
+    const sportIcon = state.sportType === 'tennis' ? '🎾' : '🏸';
+    document.getElementById('rankingCard').innerHTML = `<div class="empty-state"><div class="empty-icon">${sportIcon}</div><div class="empty-text">경기를 입력하면 순위가 표시됩니다</div></div>`;
     return;
   }
+  
   const rows = sorted.map(([name, d], i) => {
     const total = d.w + d.l;
     const rate = Math.round(d.w / total * 100);
-    const cls = i === 0 ? 'rank-first' : i === 1 ? 'rank-second' : i === 2 ? 'rank-third' : '';
-    return `<tr class="${cls}"><td class="rank-num">${i+1}</td><td>${name}</td><td>${total}전</td><td class="rank-rate">${rate}%</td></tr>`;
+    const isMe = name === myName;
+    const cls = isMe ? 'rank-me' : i === 0 ? 'rank-first' : i === 1 ? 'rank-second' : i === 2 ? 'rank-third' : '';
+    const pointsStr = d.points >= 0 ? `+${d.points}` : d.points;
+    const nameDisplay = isMe ? `<strong>${name}</strong>` : name;
+    return `<tr class="${cls}"><td class="rank-num">${i+1}</td><td>${nameDisplay}</td><td style="font-weight:700;color:var(--accent);">${pointsStr}점</td><td>${total}전</td><td class="rank-rate">${rate}%</td></tr>`;
   }).join('');
-  document.getElementById('rankingCard').innerHTML = `<table class="rank-table"><thead><tr><th></th><th>선수</th><th>경기</th><th>승률</th></tr></thead><tbody>${rows}</tbody></table>`;
+  
+  document.getElementById('rankingCard').innerHTML = `<table class="rank-table"><thead><tr><th></th><th>선수</th><th>점수</th><th>경기</th><th>승률</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function renderPartnerStats() {
