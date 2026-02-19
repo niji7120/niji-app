@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎾 테니스 동호인 리그</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      z-index: 0;
+    }
+    
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -5%;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+      z-index: 0;
+    }
+    
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .catchphrase {
+      font-size: 16px;
+      opacity: 0.95;
+      margin-bottom: 8px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      animation: fadeIn 1s ease-in;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 0.95; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      50% { 
+        transform: scale(1.05); 
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+      }
+    }
+    
+    .header h1 {
+      font-size: 36px;
+      color: white;
+      margin-bottom: 4px;
+      font-weight: 800;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .header p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 15px;
+    }
+    
+    .nav {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .nav button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid transparent;
+    }
+    
+    .nav button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .nav button.active {
+      background: white;
+      color: #667eea;
+      border: 2px solid white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .content {
+      background: white;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      min-height: 500px;
+      animation: slideUp 0.5s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    /* 테이블 스타일 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    th, td {
+      padding: 16px 12px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    th {
+      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+      font-weight: 700;
+      color: #2d3748;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+    }
+    
+    tbody tr {
+      transition: all 0.2s;
+    }
+    
+    tbody tr:hover {
+      background: linear-gradient(90deg, #f7fafc 0%, #ffffff 100%);
+      transform: scale(1.01);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* 버튼 스타일 */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(245, 101, 101, 0.4);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      color: white;
+    }
+    
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+    }
+    
+    /* 폼 스타일 */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 14px;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s;
+      background: white;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    
+    /* 랭킹 배지 */
+    .rank-badge {
+      display: inline-block;
+      width: 36px;
+      height: 36px;
+      line-height: 36px;
+      text-align: center;
+      border-radius: 50%;
+      font-weight: 800;
+      color: white;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .rank-1 { 
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); 
+      color: #000;
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+    }
+    .rank-2 { 
+      background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%); 
+      color: #000;
+      box-shadow: 0 4px 12px rgba(192, 192, 192, 0.4);
+    }
+    .rank-3 { 
+      background: linear-gradient(135deg, #cd7f32 0%, #e59b5f 100%); 
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(205, 127, 50, 0.4);
+    }
+    .rank-other { 
+      background: linear-gradient(135deg, #cbd5e0 0%, #e2e8f0 100%); 
+      color: #2d3748;
+    }
+    
+    /* ELO 변동 */
+    .elo-change {
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    
+    .elo-up { color: #48bb78; }
+    .elo-down { color: #f56565; }
+    
+    /* 최근 경기 폼 */
+    .recent-form {
+      display: flex;
+      gap: 6px;
+    }
+    
+    .form-badge {
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      text-align: center;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s;
+    }
+    
+    .form-badge:hover {
+      transform: scale(1.1);
+    }
+    
+    .form-w { 
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); 
+      color: white;
+    }
+    .form-l { 
+      background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); 
+      color: white;
+    }
+    
+    /* 자동 매칭 카드 */
+    .match-card {
+      border: none;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s;
+    }
+    
+    .match-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    }
+    
+    .match-card h3 {
+      margin-bottom: 16px;
+      color: #2d3748;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .team {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s;
+    }
+    
+    .team:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .team-players {
+      font-weight: 700;
+      color: #2d3748;
+      font-size: 15px;
+    }
+    
+    .team-elo {
+      color: #667eea;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .vs-divider {
+      text-align: center;
+      font-weight: 900;
+      color: #667eea;
+      margin: 12px 0;
+      font-size: 18px;
+      text-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 32px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.3s ease-out;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .modal-header h2 {
+      font-size: 24px;
+      color: #1a202c;
+      font-weight: 700;
+    }
+    
+    .close-btn {
+      background: #f7fafc;
+      border: none;
+      font-size: 28px;
+      color: #718096;
+      cursor: pointer;
+      line-height: 1;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    
+    .close-btn:hover {
+      background: #667eea;
+      color: white;
+      transform: rotate(90deg);
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+      
+      .header {
+        padding: 24px 20px;
+        border-radius: 16px;
+      }
+      
+      .header h1 {
+        font-size: 28px;
+      }
+      
+      .catchphrase {
+        font-size: 13px;
+      }
+      
+      /* 우측 상단 배지 모바일 조정 */
+      .header > .header-content > div:first-child {
+        position: static !important;
+        margin-bottom: 16px;
+      }
+      
+      .header > .header-content > div:first-child > div {
+        font-size: 12px !important;
+        padding: 8px 16px !important;
+      }
+      
+      .nav {
+        gap: 8px;
+      }
+      
+      .nav button {
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+      
+      .content {
+        padding: 20px;
+        border-radius: 16px;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      
+      table {
+        font-size: 12px;
+      }
+      
+      th, td {
+        padding: 10px 6px;
+      }
+      
+      .rank-badge {
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        font-size: 12px;
+      }
+      
+      .match-card {
+        padding: 16px;
+      }
+      
+      .modal-content {
+        padding: 24px;
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-content">
+        <!-- 우측 상단 배지 -->
+        <div style="position: absolute; top: 24px; right: 24px; z-index: 10;">
+          <div style="background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 12px; border: 2px solid rgba(255, 255, 255, 0.3); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); animation: pulse 2s infinite;">
+            <div style="font-size: 13px; font-weight: 700; color: white; text-align: center; letter-spacing: 0.5px;">
+              ⚡ AI 자동 매칭 시스템
+            </div>
+          </div>
+        </div>
+        
+        <div class="catchphrase">AI 기반 자동 매칭 · ELO 랭킹 시스템 · 공정한 실력 분석</div>
+        <h1>🎾 테니스 동호인 리그</h1>
+        <p>스마트한 리그 운영, 데이터로 증명하는 실력</p>
+        
+        <div class="nav">
+          <button onclick="showSection('profile')" class="active" id="nav-profile">내 프로필</button>
+          <button onclick="showSection('rankings')" id="nav-rankings">랭킹</button>
+          <button onclick="showSection('players')" id="nav-players">선수 관리</button>
+          <button onclick="showSection('matches')" id="nav-matches">경기 기록</button>
+          <button onclick="showSection('auto-match')" id="nav-auto-match">자동 매칭</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="content">
+      <!-- 개인 프로필 섹션 -->
+      <div id="section-profile">
+        <div style="text-align: center; margin-bottom: 32px;">
+          <h2 style="font-size: 28px; font-weight: 800; color: #2d3748; margin-bottom: 8px;">👤 내 프로필</h2>
+          <p style="color: #718096; margin-bottom: 20px;">내 선수를 선택하세요</p>
+          <select id="my-player-select" onchange="loadMyProfile()" style="padding: 14px 20px; font-size: 16px; border-radius: 12px; border: 2px solid #667eea; margin-top: 8px; min-width: 280px; background: white; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);">
+            <option value="">🔍 선수 선택...</option>
+          </select>
+        </div>
+        
+        <div id="my-profile-content" class="hidden">
+          <!-- 프로필 카드 -->
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 36px; color: white; margin-bottom: 28px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4); position: relative; overflow: hidden;">
+            <!-- 배경 장식 -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; z-index: 0;"></div>
+            <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255, 255, 255, 0.05); border-radius: 50%; z-index: 0;"></div>
+            
+            <div style="display: flex; align-items: center; gap: 28px; position: relative; z-index: 1;">
+              <div style="position: relative;">
+                <div id="profile-photo-container" style="width: 110px; height: 110px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 52px; overflow: hidden; cursor: pointer; position: relative; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); border: 4px solid rgba(255, 255, 255, 0.3);" onclick="document.getElementById('profile-photo-input').click()">
+                  <img id="profile-photo-img" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                  <span id="profile-photo-placeholder">🎾</span>
+                  <div style="position: absolute; bottom: -4px; right: -4px; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid white; font-size: 16px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);">📷</div>
+                </div>
+                <input type="file" id="profile-photo-input" accept="image/*" style="display: none;" onchange="handleProfilePhoto(event)">
+              </div>
+              <div style="flex: 1;">
+                <h1 id="profile-name" style="margin-bottom: 12px; font-size: 36px; font-weight: 900; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);">-</h1>
+                <div style="display: flex; gap: 20px; font-size: 15px; opacity: 0.95; flex-wrap: wrap;">
+                  <span id="profile-age" style="background: rgba(255, 255, 255, 0.2); padding: 6px 12px; border-radius: 8px; backdrop-filter: blur(10px);">👤 나이: -</span>
+                  <span id="profile-career" style="background: rgba(255, 255, 255, 0.2); padding: 6px 12px; border-radius: 8px; backdrop-filter: blur(10px);">⏱️ 경력: -년</span>
+                  <span id="profile-style" style="background: rgba(255, 255, 255, 0.2); padding: 6px 12px; border-radius: 8px; backdrop-filter: blur(10px);">⚡ 스타일: -</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 주요 지표 -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; margin-bottom: 28px;">
+            <div style="background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%); border-radius: 16px; padding: 24px; text-align: center; border: 2px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.05)'">
+              <div style="font-size: 13px; color: #718096; margin-bottom: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">🏆 현재 랭킹</div>
+              <div id="profile-rank" style="font-size: 38px; font-weight: 900; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">-</div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%); border-radius: 16px; padding: 24px; text-align: center; border: 2px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.05)'">
+              <div style="font-size: 13px; color: #718096; margin-bottom: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">⚡ 현재 ELO</div>
+              <div id="profile-elo" style="font-size: 38px; font-weight: 900; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">-</div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%); border-radius: 16px; padding: 24px; text-align: center; border: 2px solid #ffd700; box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2); transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 20px rgba(255, 215, 0, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 215, 0, 0.2)'">
+              <div style="font-size: 13px; color: #d97706; margin-bottom: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">👑 최고 ELO</div>
+              <div id="profile-highest-elo" style="font-size: 38px; font-weight: 900; color: #d97706;">-</div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #f0fdf4 0%, #f7fef9 100%); border-radius: 16px; padding: 24px; text-align: center; border: 2px solid #48bb78; box-shadow: 0 4px 12px rgba(72, 187, 120, 0.2); transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 20px rgba(72, 187, 120, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(72, 187, 120, 0.2)'">
+              <div style="font-size: 13px; color: #16a34a; margin-bottom: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">📊 승률</div>
+              <div id="profile-winrate" style="font-size: 38px; font-weight: 900; color: #16a34a;">-</div>
+            </div>
+          </div>
+          
+          <!-- 전적 상세 -->
+          <div style="background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%); border-radius: 16px; padding: 28px; margin-bottom: 28px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+            <h3 style="margin-bottom: 20px; color: #2d3748; font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+              📊 <span>전적 분석</span>
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; text-align: center;">
+              <div style="padding: 16px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                <div style="font-size: 13px; color: #718096; margin-bottom: 8px; font-weight: 600;">총 경기</div>
+                <div id="profile-total-matches" style="font-size: 32px; font-weight: 900; color: #2d3748;">-</div>
+              </div>
+              <div style="padding: 16px; background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border-radius: 12px; box-shadow: 0 2px 8px rgba(72, 187, 120, 0.1);">
+                <div style="font-size: 13px; color: #16a34a; margin-bottom: 8px; font-weight: 600;">승리</div>
+                <div id="profile-wins" style="font-size: 32px; font-weight: 900; color: #16a34a;">-</div>
+              </div>
+              <div style="padding: 16px; background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%); border-radius: 12px; box-shadow: 0 2px 8px rgba(245, 101, 101, 0.1);">
+                <div style="font-size: 13px; color: #dc2626; margin-bottom: 8px; font-weight: 600;">패배</div>
+                <div id="profile-losses" style="font-size: 32px; font-weight: 900; color: #dc2626;">-</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 최근 10경기 폼 -->
+          <div style="background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%); border-radius: 16px; padding: 28px; margin-bottom: 28px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+            <h3 style="margin-bottom: 20px; color: #2d3748; font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+              🔥 <span>최근 폼</span>
+            </h3>
+            <div id="profile-recent-form" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+              <!-- 동적 생성 -->
+            </div>
+            <div id="profile-streak" style="text-align: center; margin-top: 20px; font-size: 16px; font-weight: 700; padding: 12px; background: rgba(102, 126, 234, 0.1); border-radius: 10px; color: #667eea;">
+              <!-- 연승/연패 표시 -->
+            </div>
+          </div>
+          
+          <!-- ELO 변동 그래프 (시각적 표현) -->
+          <div style="background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%); border-radius: 16px; padding: 28px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+            <h3 style="margin-bottom: 20px; color: #2d3748; font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+              📈 <span>ELO 트렌드</span>
+            </h3>
+            <div style="display: flex; align-items: center; gap: 20px;">
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                  <span style="font-size: 12px; color: #718096; font-weight: 600;">최저</span>
+                  <span style="font-size: 12px; color: #667eea; font-weight: 700;">● 현재</span>
+                  <span style="font-size: 12px; color: #d97706; font-weight: 600;">최고</span>
+                </div>
+                <div style="position: relative; height: 50px; background: linear-gradient(90deg, #fee2e2 0%, #fef3c7 50%, #d1fae5 100%); border-radius: 25px; overflow: hidden; box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);">
+                  <div id="profile-elo-bar" style="position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, rgba(102, 126, 234, 0.3) 0%, rgba(102, 126, 234, 0.1) 100%); transition: width 0.5s ease;"></div>
+                  <div id="profile-elo-marker" style="position: absolute; top: 50%; transform: translateY(-50%); width: 6px; height: 80%; background: #667eea; border-radius: 3px; transition: left 0.5s ease; box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 13px; font-weight: 700;">
+                  <span id="profile-min-elo" style="color: #dc2626;">1400</span>
+                  <span id="profile-current-elo-text" style="color: #667eea; font-size: 16px;">-</span>
+                  <span id="profile-max-elo-text" style="color: #d97706;">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 랭킹 섹션 -->
+      <div id="section-rankings" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <h2 style="font-size: 28px; font-weight: 800; color: #2d3748; margin-bottom: 4px;">🏆 전체 랭킹</h2>
+            <p style="color: #718096; font-size: 14px;">실시간 ELO 기반 순위</p>
+          </div>
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 20px; border-radius: 12px; font-weight: 700; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+            <span id="total-players-count">12</span>명 등록
+          </div>
+        </div>
+        <table id="rankings-table">
+          <thead>
+            <tr>
+              <th>순위</th>
+              <th>선수명</th>
+              <th>ELO</th>
+              <th>최고 ELO</th>
+              <th>승률</th>
+              <th>전적</th>
+            </tr>
+          </thead>
+          <tbody id="rankings-body"></tbody>
+        </table>
+      </div>
+      
+      <!-- 선수 관리 섹션 -->
+      <div id="section-players" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <h2 style="font-size: 28px; font-weight: 800; color: #2d3748; margin-bottom: 4px;">👥 선수 관리</h2>
+            <p style="color: #718096; font-size: 14px;">등록된 선수 정보 관리</p>
+          </div>
+          <button class="btn btn-primary" onclick="openPlayerModal()" style="font-size: 15px; padding: 12px 24px; display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 18px;">➕</span> 선수 등록
+          </button>
+        </div>
+        <table id="players-table">
+          <thead>
+            <tr>
+              <th>이름</th>
+              <th>나이</th>
+              <th>경력(년)</th>
+              <th>스타일</th>
+              <th>ELO</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="players-body"></tbody>
+        </table>
+      </div>
+      
+      <!-- 경기 기록 섹션 -->
+      <div id="section-matches" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <div>
+            <h2 style="font-size: 28px; font-weight: 800; color: #2d3748; margin-bottom: 4px;">📋 경기 기록</h2>
+            <p style="color: #718096; font-size: 14px;">모든 경기 결과 및 점수</p>
+          </div>
+          <button class="btn btn-success" onclick="openMatchModal()" style="font-size: 15px; padding: 12px 24px; display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 18px;">➕</span> 경기 입력
+          </button>
+        </div>
+        <table id="matches-table">
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th>유형</th>
+              <th>팀 A</th>
+              <th>스코어</th>
+              <th>팀 B</th>
+              <th>승자</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="matches-body"></tbody>
+        </table>
+      </div>
+      
+      <!-- 자동 매칭 섹션 -->
+      <div id="section-auto-match" class="hidden">
+        <div style="margin-bottom: 28px;">
+          <h2 style="font-size: 28px; font-weight: 800; color: #2d3748; margin-bottom: 8px;">🤖 자동 리그 매칭</h2>
+          <p style="color: #718096; font-size: 14px;">AI 기반 실력별 균형 매칭 시스템</p>
+        </div>
+        
+        <div style="background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%); border-radius: 16px; padding: 28px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+          <div class="form-group">
+            <label style="font-size: 16px; font-weight: 700; color: #2d3748; margin-bottom: 12px; display: block;">
+              👥 참석 선수 선택
+            </label>
+            <div id="player-select-list" style="max-height: 300px; overflow-y: auto; padding: 12px; background: white; border-radius: 12px; border: 2px solid #e2e8f0;"></div>
+          </div>
+          <div class="form-group">
+            <label style="font-size: 16px; font-weight: 700; color: #2d3748; margin-bottom: 12px; display: block;">
+              🎾 코트 수
+            </label>
+            <input type="number" id="num-courts" value="2" min="1" max="10" style="width: 200px; padding: 14px; font-size: 16px; font-weight: 600; border: 2px solid #e2e8f0; border-radius: 12px;">
+          </div>
+          <button class="btn btn-success" onclick="generateMatches()" style="width: 100%; padding: 16px; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <span style="font-size: 20px;">✨</span> 매칭 생성하기
+          </button>
+        </div>
+        
+        <div id="match-results" style="margin-top: 24px;"></div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <!-- 선수 등록/수정 모달 -->
+  <div id="player-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="player-modal-title">선수 등록</h2>
+        <button class="close-btn" onclick="closePlayerModal()">&times;</button>
+      </div>
+      
+      <form id="player-form" onsubmit="savePlayer(event)">
+        <div class="form-group" style="text-align: center; margin-bottom: 24px;">
+          <div id="player-modal-photo-container" style="width: 120px; height: 120px; margin: 0 auto; background: #f7fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 60px; overflow: hidden; cursor: pointer; border: 3px dashed #cbd5e0; position: relative;" onclick="document.getElementById('player-modal-photo-input').click()">
+            <img id="player-modal-photo-img" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+            <span id="player-modal-photo-placeholder">📷</span>
+          </div>
+          <input type="file" id="player-modal-photo-input" accept="image/*" style="display: none;" onchange="handlePlayerModalPhoto(event)">
+          <p style="font-size: 12px; color: #718096; margin-top: 8px;">클릭하여 사진 업로드</p>
+        </div>
+        
+        <div class="form-group">
+          <label>이름 *</label>
+          <input type="text" id="player-name" required>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>나이</label>
+            <input type="number" id="player-age" min="10" max="100">
+          </div>
+          
+          <div class="form-group">
+            <label>경력(년)</label>
+            <input type="number" id="player-career" min="0" max="50">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>플레이 스타일</label>
+          <select id="player-style">
+            <option value="공격형">공격형</option>
+            <option value="수비형">수비형</option>
+            <option value="올라운드">올라운드</option>
+            <option value="서브앤발리">서브앤발리</option>
+          </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 16px;">저장</button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- 경기 입력 모달 -->
+  <div id="match-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>경기 입력</h2>
+        <button class="close-btn" onclick="closeMatchModal()">&times;</button>
+      </div>
+      
+      <form id="match-form" onsubmit="saveMatch(event)">
+        <div class="form-group">
+          <label>경기 날짜 *</label>
+          <input type="date" id="match-date" required>
+        </div>
+        
+        <div class="form-group">
+          <label>경기 유형 *</label>
+          <select id="match-type" onchange="toggleDoublesFields()" required>
+            <option value="singles">단식</option>
+            <option value="doubles">복식</option>
+          </select>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>팀 A - 선수 1 *</label>
+            <select id="team-a-p1" required></select>
+          </div>
+          
+          <div class="form-group doubles-field">
+            <label>팀 A - 선수 2</label>
+            <select id="team-a-p2"></select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>팀 B - 선수 1 *</label>
+            <select id="team-b-p1" required></select>
+          </div>
+          
+          <div class="form-group doubles-field">
+            <label>팀 B - 선수 2</label>
+            <select id="team-b-p2"></select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>팀 A 스코어 *</label>
+            <input type="number" id="team-a-score" min="0" required>
+          </div>
+          
+          <div class="form-group">
+            <label>팀 B 스코어 *</label>
+            <input type="number" id="team-b-score" min="0" required>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 16px;">경기 저장</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // API 엔드포인트 (배포 후 실제 URL로 변경)
+    const API_URL = 'https://your-worker.workers.dev';
+    
+    // Mock 데이터 (데모용)
+    let players = [
+      {id: 1, name: '김태희', age: 28, career: 3, style: '공격형', elo_rating: 1620, highest_elo: 1650, total_matches: 15, total_wins: 10, total_losses: 5},
+      {id: 2, name: '이민호', age: 35, career: 8, style: '수비형', elo_rating: 1580, highest_elo: 1600, total_matches: 18, total_wins: 11, total_losses: 7},
+      {id: 3, name: '박서준', age: 32, career: 5, style: '올라운드', elo_rating: 1490, highest_elo: 1520, total_matches: 12, total_wins: 6, total_losses: 6},
+      {id: 4, name: '손예진', age: 30, career: 4, style: '공격형', elo_rating: 1510, highest_elo: 1530, total_matches: 14, total_wins: 8, total_losses: 6},
+      {id: 5, name: '현빈', age: 38, career: 12, style: '서브앤발리', elo_rating: 1680, highest_elo: 1700, total_matches: 20, total_wins: 15, total_losses: 5},
+      {id: 6, name: '전지현', age: 33, career: 6, style: '올라운드', elo_rating: 1540, highest_elo: 1560, total_matches: 16, total_wins: 9, total_losses: 7},
+      {id: 7, name: '공유', age: 36, career: 10, style: '공격형', elo_rating: 1650, highest_elo: 1680, total_matches: 19, total_wins: 13, total_losses: 6},
+      {id: 8, name: '아이유', age: 26, career: 2, style: '수비형', elo_rating: 1420, highest_elo: 1450, total_matches: 10, total_wins: 4, total_losses: 6},
+      {id: 9, name: '송중기', age: 34, career: 7, style: '공격형', elo_rating: 1560, highest_elo: 1590, total_matches: 17, total_wins: 10, total_losses: 7},
+      {id: 10, name: '수지', age: 27, career: 3, style: '올라운드', elo_rating: 1470, highest_elo: 1490, total_matches: 11, total_wins: 5, total_losses: 6},
+      {id: 11, name: '강동원', age: 40, career: 15, style: '서브앤발리', elo_rating: 1710, highest_elo: 1720, total_matches: 22, total_wins: 17, total_losses: 5},
+      {id: 12, name: '한지민', age: 31, career: 5, style: '수비형', elo_rating: 1500, highest_elo: 1520, total_matches: 13, total_wins: 7, total_losses: 6}
+    ];
+    let matches = [];
+    let currentPlayerId = null;
+    
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPlayers();
+      loadMatches();
+      loadRankings();
+      setDefaultDate();
+      updateMyPlayerSelect();
+    });
+    
+    // 내 선수 선택 드롭다운 업데이트
+    function updateMyPlayerSelect() {
+      const select = document.getElementById('my-player-select');
+      select.innerHTML = '<option value="">선수 선택...</option>' + 
+        players.map(p => `<option value="${p.id}">${p.name} (ELO: ${p.elo_rating})</option>`).join('');
+      
+      // 로컬 스토리지에서 선택된 선수 복원
+      const savedPlayerId = localStorage.getItem('myPlayerId');
+      if (savedPlayerId) {
+        select.value = savedPlayerId;
+        loadMyProfile();
+      }
+    }
+    
+    // 프로필 사진 처리
+    function handleProfilePhoto(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      // 이미지 파일인지 확인
+      if (!file.type.startsWith('image/')) {
+        alert('이미지 파일만 업로드 가능합니다.');
+        return;
+      }
+      
+      // 파일 크기 확인 (5MB 제한)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('파일 크기는 5MB 이하여야 합니다.');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const playerId = document.getElementById('my-player-select').value;
+        if (!playerId) return;
+        
+        // 이미지 표시
+        const img = document.getElementById('profile-photo-img');
+        const placeholder = document.getElementById('profile-photo-placeholder');
+        
+        img.src = e.target.result;
+        img.style.display = 'block';
+        placeholder.style.display = 'none';
+        
+        // 로컬 스토리지에 저장
+        localStorage.setItem(`profilePhoto_${playerId}`, e.target.result);
+      };
+      
+      reader.readAsDataURL(file);
+    }
+    
+    // 프로필 사진 로드
+    function loadProfilePhoto(playerId) {
+      const savedPhoto = localStorage.getItem(`profilePhoto_${playerId}`);
+      const img = document.getElementById('profile-photo-img');
+      const placeholder = document.getElementById('profile-photo-placeholder');
+      
+      if (savedPhoto) {
+        img.src = savedPhoto;
+        img.style.display = 'block';
+        placeholder.style.display = 'none';
+      } else {
+        img.style.display = 'none';
+        placeholder.style.display = 'block';
+      }
+    }
+    
+    // 내 프로필 로드
+    function loadMyProfile() {
+      const playerId = parseInt(document.getElementById('my-player-select').value);
+      if (!playerId) {
+        document.getElementById('my-profile-content').classList.add('hidden');
+        return;
+      }
+      
+      // 선택 저장
+      localStorage.setItem('myPlayerId', playerId);
+      
+      const player = players.find(p => p.id === playerId);
+      if (!player) return;
+      
+      // 랭킹 계산
+      const sortedPlayers = [...players].sort((a, b) => b.elo_rating - a.elo_rating);
+      const rank = sortedPlayers.findIndex(p => p.id === playerId) + 1;
+      
+      // 승률 계산
+      const winRate = player.total_matches > 0 
+        ? ((player.total_wins / player.total_matches) * 100).toFixed(1)
+        : 0;
+      
+      // 프로필 정보 업데이트
+      document.getElementById('profile-name').textContent = player.name;
+      document.getElementById('profile-age').textContent = `나이: ${player.age || '-'}`;
+      document.getElementById('profile-career').textContent = `경력: ${player.career || '-'}년`;
+      document.getElementById('profile-style').textContent = `스타일: ${player.style || '-'}`;
+      
+      document.getElementById('profile-rank').textContent = `${rank}위`;
+      document.getElementById('profile-elo').textContent = player.elo_rating;
+      document.getElementById('profile-highest-elo').textContent = player.highest_elo;
+      document.getElementById('profile-winrate').textContent = `${winRate}%`;
+      
+      document.getElementById('profile-total-matches').textContent = player.total_matches;
+      document.getElementById('profile-wins').textContent = player.total_wins;
+      document.getElementById('profile-losses').textContent = player.total_losses;
+      
+      // 최근 폼 생성 (가상 데이터)
+      const recentForm = generateRecentForm(player);
+      const formHtml = recentForm.map(result => 
+        `<div class="form-badge form-${result.toLowerCase()}">${result}</div>`
+      ).join('');
+      document.getElementById('profile-recent-form').innerHTML = formHtml;
+      
+      // 연승/연패 계산
+      const streak = calculateStreak(recentForm);
+      document.getElementById('profile-streak').textContent = streak;
+      
+      // ELO 트렌드 바
+      const minElo = 1200;
+      const maxElo = Math.max(player.highest_elo, 1800);
+      const range = maxElo - minElo;
+      const currentPercent = ((player.elo_rating - minElo) / range) * 100;
+      const maxPercent = ((player.highest_elo - minElo) / range) * 100;
+      
+      document.getElementById('profile-elo-bar').style.width = `${maxPercent}%`;
+      document.getElementById('profile-elo-marker').style.left = `${currentPercent}%`;
+      document.getElementById('profile-current-elo-text').textContent = player.elo_rating;
+      document.getElementById('profile-max-elo-text').textContent = player.highest_elo;
+      
+      // 프로필 사진 로드
+      loadProfilePhoto(playerId);
+      
+      // 프로필 컨텐츠 표시
+      document.getElementById('my-profile-content').classList.remove('hidden');
+    }
+    
+    // 최근 폼 생성 (승률 기반 가상 데이터)
+    function generateRecentForm(player) {
+      const winRate = player.total_matches > 0 ? player.total_wins / player.total_matches : 0.5;
+      const form = [];
+      
+      for (let i = 0; i < Math.min(10, player.total_matches); i++) {
+        // 승률에 기반한 확률적 생성
+        const random = Math.random();
+        form.push(random < winRate ? 'W' : 'L');
+      }
+      
+      return form.reverse(); // 최근이 앞으로
+    }
+    
+    // 연승/연패 계산
+    function calculateStreak(form) {
+      if (form.length === 0) return '';
+      
+      let streak = 1;
+      const latest = form[0];
+      
+      for (let i = 1; i < form.length; i++) {
+        if (form[i] === latest) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+      
+      if (streak >= 3) {
+        return latest === 'W' 
+          ? `🔥 ${streak}연승 중!` 
+          : `😓 ${streak}연패 중...`;
+      }
+      
+      return '';
+    }
+    
+    // 섹션 전환
+    function showSection(section) {
+      document.querySelectorAll('[id^="section-"]').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`section-${section}`).classList.remove('hidden');
+      
+      document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`nav-${section}`).classList.add('active');
+    }
+    
+    // 선수 목록 로드
+    async function loadPlayers() {
+      try {
+        // Mock 데이터 사용 (실제 배포 시에는 API 호출)
+        // const res = await fetch(`${API_URL}/api/players`);
+        // players = await res.json();
+        renderPlayers();
+        updatePlayerSelects();
+        updatePlayerCheckboxes();
+        updateMyPlayerSelect();
+      } catch (error) {
+        console.error('선수 로드 실패:', error);
+      }
+    }
+    
+    // 선수 렌더링
+    function renderPlayers() {
+      const tbody = document.getElementById('players-body');
+      tbody.innerHTML = players.map(p => {
+        const photo = localStorage.getItem(`profilePhoto_${p.id}`);
+        return `
+        <tr>
+          <td>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #f7fafc; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                ${photo ? `<img src="${photo}" style="width: 100%; height: 100%; object-fit: cover;">` : '<span style="font-size: 20px;">🎾</span>'}
+              </div>
+              <strong>${p.name}</strong>
+            </div>
+          </td>
+          <td>${p.age || '-'}</td>
+          <td>${p.career || '-'}</td>
+          <td>
+            <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+              ${p.style || '-'}
+            </span>
+          </td>
+          <td><strong style="font-size: 16px; color: #667eea;">${p.elo_rating}</strong></td>
+          <td>
+            <button class="btn btn-primary" onclick="editPlayer(${p.id})" style="margin-right: 8px; padding: 8px 16px; font-size: 13px;">✏️ 수정</button>
+            <button class="btn btn-danger" onclick="deletePlayer(${p.id})" style="padding: 8px 16px; font-size: 13px;">🗑️ 삭제</button>
+          </td>
+        </tr>
+      `}).join('');
+    }
+    
+    // 경기 목록 로드
+    async function loadMatches() {
+      try {
+        // Mock 데이터 사용
+        matches = [
+          {
+            id: 1,
+            match_date: '2024-02-10',
+            match_type: 'doubles',
+            team_a_player1: 5, team_a_player2: 7,
+            team_b_player1: 2, team_b_player2: 6,
+            team_a_score: 6, team_b_score: 4,
+            winner_team: 'A',
+            team_a_p1_name: '현빈', team_a_p2_name: '공유',
+            team_b_p1_name: '이민호', team_b_p2_name: '전지현'
+          },
+          {
+            id: 2,
+            match_date: '2024-02-10',
+            match_type: 'doubles',
+            team_a_player1: 11, team_a_player2: 9,
+            team_b_player1: 3, team_b_player2: 10,
+            team_a_score: 6, team_b_score: 3,
+            winner_team: 'A',
+            team_a_p1_name: '강동원', team_a_p2_name: '송중기',
+            team_b_p1_name: '박서준', team_b_p2_name: '수지'
+          },
+          {
+            id: 3,
+            match_date: '2024-02-09',
+            match_type: 'singles',
+            team_a_player1: 5, team_b_player1: 11,
+            team_a_score: 4, team_b_score: 6,
+            winner_team: 'B',
+            team_a_p1_name: '현빈', team_b_p1_name: '강동원'
+          },
+          {
+            id: 4,
+            match_date: '2024-02-09',
+            match_type: 'doubles',
+            team_a_player1: 1, team_a_player2: 4,
+            team_b_player1: 8, team_b_player2: 12,
+            team_a_score: 5, team_b_score: 7,
+            winner_team: 'B',
+            team_a_p1_name: '김태희', team_a_p2_name: '손예진',
+            team_b_p1_name: '아이유', team_b_p2_name: '한지민'
+          },
+          {
+            id: 5,
+            match_date: '2024-02-08',
+            match_type: 'doubles',
+            team_a_player1: 7, team_a_player2: 6,
+            team_b_player1: 1, team_b_player2: 4,
+            team_a_score: 6, team_b_score: 2,
+            winner_team: 'A',
+            team_a_p1_name: '공유', team_a_p2_name: '전지현',
+            team_b_p1_name: '김태희', team_b_p2_name: '손예진'
+          }
+        ];
+        renderMatches();
+      } catch (error) {
+        console.error('경기 로드 실패:', error);
+      }
+    }
+    
+    // 경기 렌더링
+    function renderMatches() {
+      const tbody = document.getElementById('matches-body');
+      tbody.innerHTML = matches.map(m => {
+        const teamA = m.match_type === 'singles' 
+          ? m.team_a_p1_name 
+          : `${m.team_a_p1_name} / ${m.team_a_p2_name}`;
+        const teamB = m.match_type === 'singles'
+          ? m.team_b_p1_name
+          : `${m.team_b_p1_name} / ${m.team_b_p2_name}`;
+        
+        const winnerTeamName = m.winner_team === 'A' ? teamA : teamB;
+        
+        return `
+          <tr>
+            <td style="font-weight: 600; color: #667eea;">${m.match_date}</td>
+            <td>
+              <span style="background: ${m.match_type === 'singles' ? 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}; color: white; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                ${m.match_type === 'singles' ? '🎯 단식' : '👥 복식'}
+              </span>
+            </td>
+            <td><strong>${teamA}</strong></td>
+            <td style="text-align: center;">
+              <span style="font-size: 18px; font-weight: 900; color: ${m.winner_team === 'A' ? '#16a34a' : '#2d3748'};">${m.team_a_score}</span>
+              <span style="color: #cbd5e0; margin: 0 8px;">:</span>
+              <span style="font-size: 18px; font-weight: 900; color: ${m.winner_team === 'B' ? '#16a34a' : '#2d3748'};">${m.team_b_score}</span>
+            </td>
+            <td><strong>${teamB}</strong></td>
+            <td>
+              <span style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700;">
+                🏆 ${winnerTeamName}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-danger" onclick="deleteMatch(${m.id})" style="padding: 8px 16px; font-size: 13px;">🗑️ 삭제</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+    
+    // 랭킹 로드
+    async function loadRankings() {
+      try {
+        // Mock 데이터 사용
+        const rankings = players.map(p => ({
+          ...p,
+          win_rate: p.total_matches > 0 ? ((p.total_wins / p.total_matches) * 100).toFixed(1) : 0
+        })).sort((a, b) => b.elo_rating - a.elo_rating);
+        renderRankings(rankings);
+      } catch (error) {
+        console.error('랭킹 로드 실패:', error);
+      }
+    }
+    
+    // 랭킹 렌더링
+    function renderRankings(rankings) {
+      const tbody = document.getElementById('rankings-body');
+      tbody.innerHTML = rankings.map((p, idx) => {
+        const rank = idx + 1;
+        const badgeClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
+        const photo = localStorage.getItem(`profilePhoto_${p.id}`);
+        
+        return `
+          <tr>
+            <td><span class="rank-badge ${badgeClass}">${rank}</span></td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #f7fafc; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  ${photo ? `<img src="${photo}" style="width: 100%; height: 100%; object-fit: cover;">` : '<span style="font-size: 20px;">🎾</span>'}
+                </div>
+                <strong>${p.name}</strong>
+              </div>
+            </td>
+            <td>
+              <strong>${p.elo_rating}</strong>
+            </td>
+            <td>${p.highest_elo}</td>
+            <td>${p.win_rate}%</td>
+            <td>${p.total_wins}승 ${p.total_losses}패 (${p.total_matches}경기)</td>
+          </tr>
+        `;
+      }).join('');
+    }
+    
+    // 선수 모달 사진 처리
+    function handlePlayerModalPhoto(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      if (!file.type.startsWith('image/')) {
+        alert('이미지 파일만 업로드 가능합니다.');
+        return;
+      }
+      
+      if (file.size > 5 * 1024 * 1024) {
+        alert('파일 크기는 5MB 이하여야 합니다.');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = document.getElementById('player-modal-photo-img');
+        const placeholder = document.getElementById('player-modal-photo-placeholder');
+        
+        img.src = e.target.result;
+        img.style.display = 'block';
+        placeholder.style.display = 'none';
+      };
+      
+      reader.readAsDataURL(file);
+    }
+    
+    // 선수 모달 열기
+    function openPlayerModal(playerId = null) {
+      currentPlayerId = playerId;
+      const modal = document.getElementById('player-modal');
+      const title = document.getElementById('player-modal-title');
+      const img = document.getElementById('player-modal-photo-img');
+      const placeholder = document.getElementById('player-modal-photo-placeholder');
+      
+      if (playerId) {
+        title.textContent = '선수 수정';
+        const player = players.find(p => p.id === playerId);
+        document.getElementById('player-name').value = player.name;
+        document.getElementById('player-age').value = player.age || '';
+        document.getElementById('player-career').value = player.career || '';
+        document.getElementById('player-style').value = player.style || '공격형';
+        
+        // 사진 로드
+        const savedPhoto = localStorage.getItem(`profilePhoto_${playerId}`);
+        if (savedPhoto) {
+          img.src = savedPhoto;
+          img.style.display = 'block';
+          placeholder.style.display = 'none';
+        } else {
+          img.style.display = 'none';
+          placeholder.style.display = 'block';
+        }
+      } else {
+        title.textContent = '선수 등록';
+        document.getElementById('player-form').reset();
+        img.style.display = 'none';
+        placeholder.style.display = 'block';
+      }
+      
+      modal.classList.add('active');
+    }
+    
+    function closePlayerModal() {
+      document.getElementById('player-modal').classList.remove('active');
+    }
+    
+    // 선수 저장
+    async function savePlayer(event) {
+      event.preventDefault();
+      
+      const data = {
+        name: document.getElementById('player-name').value,
+        age: parseInt(document.getElementById('player-age').value) || null,
+        career: parseInt(document.getElementById('player-career').value) || null,
+        style: document.getElementById('player-style').value
+      };
+      
+      try {
+        let savedPlayerId;
+        
+        if (currentPlayerId) {
+          // 수정
+          const player = players.find(p => p.id === currentPlayerId);
+          Object.assign(player, data);
+          savedPlayerId = currentPlayerId;
+        } else {
+          // 신규 등록
+          savedPlayerId = players.length + 1;
+          players.push({
+            id: savedPlayerId,
+            ...data,
+            elo_rating: 1500,
+            highest_elo: 1500,
+            total_matches: 0,
+            total_wins: 0,
+            total_losses: 0
+          });
+        }
+        
+        // 사진 저장
+        const img = document.getElementById('player-modal-photo-img');
+        if (img.style.display === 'block' && img.src) {
+          localStorage.setItem(`profilePhoto_${savedPlayerId}`, img.src);
+        }
+        
+        closePlayerModal();
+        loadPlayers();
+        loadRankings();
+        alert('저장되었습니다! (데모 모드 - 실제 배포 시 서버에 저장됩니다)');
+      } catch (error) {
+        console.error('저장 실패:', error);
+        alert('저장에 실패했습니다.');
+      }
+    }
+    
+    // 선수 수정
+    function editPlayer(id) {
+      openPlayerModal(id);
+    }
+    
+    // 선수 삭제
+    async function deletePlayer(id) {
+      if (!confirm('정말 삭제하시겠습니까? 관련된 모든 경기 기록도 삭제됩니다.')) return;
+      
+      try {
+        players = players.filter(p => p.id !== id);
+        loadPlayers();
+        loadMatches();
+        loadRankings();
+        alert('삭제되었습니다! (데모 모드)');
+      } catch (error) {
+        console.error('삭제 실패:', error);
+      }
+    }
+    
+    // 경기 모달 열기
+    function openMatchModal() {
+      document.getElementById('match-modal').classList.add('active');
+      toggleDoublesFields();
+    }
+    
+    function closeMatchModal() {
+      document.getElementById('match-modal').classList.remove('active');
+      document.getElementById('match-form').reset();
+      setDefaultDate();
+    }
+    
+    // 복식 필드 토글
+    function toggleDoublesFields() {
+      const isDoubles = document.getElementById('match-type').value === 'doubles';
+      document.querySelectorAll('.doubles-field').forEach(el => {
+        el.style.display = isDoubles ? 'block' : 'none';
+      });
+    }
+    
+    // 경기 저장
+    async function saveMatch(event) {
+      event.preventDefault();
+      
+      const matchType = document.getElementById('match-type').value;
+      
+      const data = {
+        match_date: document.getElementById('match-date').value,
+        match_type: matchType,
+        team_a_player1: parseInt(document.getElementById('team-a-p1').value),
+        team_b_player1: parseInt(document.getElementById('team-b-p1').value),
+        team_a_score: parseInt(document.getElementById('team-a-score').value),
+        team_b_score: parseInt(document.getElementById('team-b-score').value)
+      };
+      
+      if (matchType === 'doubles') {
+        data.team_a_player2 = parseInt(document.getElementById('team-a-p2').value);
+        data.team_b_player2 = parseInt(document.getElementById('team-b-p2').value);
+      }
+      
+      try {
+        // Mock 데이터 추가
+        const winnerTeam = data.team_a_score > data.team_b_score ? 'A' : 'B';
+        
+        const p1 = players.find(p => p.id === data.team_a_player1);
+        const p2 = players.find(p => p.id === data.team_b_player1);
+        
+        const newMatch = {
+          id: matches.length + 1,
+          ...data,
+          winner_team: winnerTeam,
+          team_a_p1_name: p1?.name || '',
+          team_b_p1_name: p2?.name || ''
+        };
+        
+        if (matchType === 'doubles') {
+          const p3 = players.find(p => p.id === data.team_a_player2);
+          const p4 = players.find(p => p.id === data.team_b_player2);
+          newMatch.team_a_p2_name = p3?.name || '';
+          newMatch.team_b_p2_name = p4?.name || '';
+        }
+        
+        matches.unshift(newMatch);
+        
+        closeMatchModal();
+        loadMatches();
+        alert('경기가 기록되었습니다! (데모 모드 - 실제 배포시 ELO 점수가 자동 계산됩니다)');
+      } catch (error) {
+        console.error('저장 실패:', error);
+        alert('저장에 실패했습니다.');
+      }
+    }
+    
+    // 경기 삭제
+    async function deleteMatch(id) {
+      if (!confirm('경기를 삭제하시겠습니까? ELO 점수가 재계산됩니다.')) return;
+      
+      try {
+        matches = matches.filter(m => m.id !== id);
+        loadMatches();
+        alert('경기가 삭제되었습니다! (데모 모드)');
+      } catch (error) {
+        console.error('삭제 실패:', error);
+      }
+    }
+    
+    // 선수 선택 업데이트
+    function updatePlayerSelects() {
+      const selects = ['team-a-p1', 'team-a-p2', 'team-b-p1', 'team-b-p2'];
+      selects.forEach(id => {
+        const select = document.getElementById(id);
+        select.innerHTML = '<option value="">선택</option>' + 
+          players.map(p => `<option value="${p.id}">${p.name} (${p.elo_rating})</option>`).join('');
+      });
+    }
+    
+    // 자동 매칭용 체크박스
+    function updatePlayerCheckboxes() {
+      const container = document.getElementById('player-select-list');
+      container.innerHTML = players
+        .sort((a, b) => b.elo_rating - a.elo_rating)
+        .map(p => {
+          const photo = localStorage.getItem(`profilePhoto_${p.id}`);
+          return `
+            <label style="display: flex; align-items: center; padding: 12px; cursor: pointer; border-radius: 10px; margin-bottom: 8px; transition: all 0.2s; background: white; border: 2px solid transparent;" 
+                   onmouseover="this.style.background='#f7fafc'; this.style.borderColor='#667eea'" 
+                   onmouseout="this.style.background='white'; this.style.borderColor='transparent'">
+              <input type="checkbox" class="player-checkbox" value="${p.id}" style="width: 20px; height: 20px; margin-right: 12px; cursor: pointer; accent-color: #667eea;">
+              <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #f7fafc; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                ${photo ? `<img src="${photo}" style="width: 100%; height: 100%; object-fit: cover;">` : '<span style="font-size: 20px;">🎾</span>'}
+              </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; color: #2d3748;">${p.name}</div>
+                <div style="font-size: 13px; color: #718096;">ELO: ${p.elo_rating}</div>
+              </div>
+            </label>
+          `;
+        }).join('');
+    }
+    
+    // 자동 매칭 생성
+    async function generateMatches() {
+      const checkboxes = document.querySelectorAll('.player-checkbox:checked');
+      const playerIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+      const numCourts = parseInt(document.getElementById('num-courts').value);
+      
+      if (playerIds.length < 4) {
+        alert('최소 4명 이상 선택해주세요.');
+        return;
+      }
+      
+      if (playerIds.length < numCourts * 4) {
+        alert(`코트 ${numCourts}개에는 최소 ${numCourts * 4}명이 필요합니다.`);
+        return;
+      }
+      
+      try {
+        // Mock 자동 매칭 알고리즘
+        const selectedPlayers = players.filter(p => playerIds.includes(p.id));
+        const result = autoAssignLeagueMock(selectedPlayers, numCourts);
+        renderAutoMatches(result);
+      } catch (error) {
+        console.error('매칭 생성 실패:', error);
+      }
+    }
+    
+    // Mock 자동 매칭 함수
+    function autoAssignLeagueMock(playerList, numCourts) {
+      // ELO 순 정렬
+      const sortedPlayers = [...playerList].sort((a, b) => b.elo_rating - a.elo_rating);
+      
+      // 코트별 배정
+      const courts = Array.from({ length: numCourts }, () => []);
+      
+      for (let i = 0; i < sortedPlayers.length; i++) {
+        const courtIndex = Math.floor(i / 4) % numCourts;
+        if (courts[courtIndex].length < 4) {
+          courts[courtIndex].push(sortedPlayers[i]);
+        }
+      }
+      
+      // 각 코트별 최적 조합
+      const matches = courts
+        .filter(court => court.length === 4)
+        .map((court, index) => {
+          const bestMatch = findBestDoublesMatchMock(court);
+          return {
+            courtNumber: index + 1,
+            ...bestMatch
+          };
+        });
+      
+      const assignedPlayers = matches.flatMap(m => [
+        m.teamA.player1.id,
+        m.teamA.player2.id,
+        m.teamB.player1.id,
+        m.teamB.player2.id
+      ]);
+      
+      const waitingPlayers = sortedPlayers.filter(p => !assignedPlayers.includes(p.id));
+      
+      return {
+        matches,
+        waitingPlayers,
+        stats: {
+          totalPlayers: playerList.length,
+          activePlayers: assignedPlayers.length,
+          waitingPlayers: waitingPlayers.length,
+          courts: matches.length
+        }
+      };
+    }
+    
+    // Mock 4명 복식 조합
+    function findBestDoublesMatchMock(playerList) {
+      const combinations = [
+        { teamA: [0, 1], teamB: [2, 3] },
+        { teamA: [0, 2], teamB: [1, 3] },
+        { teamA: [0, 3], teamB: [1, 2] }
+      ];
+      
+      let bestCombination = null;
+      let minDifference = Infinity;
+      
+      for (const combo of combinations) {
+        const teamA_avg = (playerList[combo.teamA[0]].elo_rating + playerList[combo.teamA[1]].elo_rating) / 2;
+        const teamB_avg = (playerList[combo.teamB[0]].elo_rating + playerList[combo.teamB[1]].elo_rating) / 2;
+        const difference = Math.abs(teamA_avg - teamB_avg);
+        
+        if (difference < minDifference) {
+          minDifference = difference;
+          bestCombination = {
+            teamA: {
+              player1: playerList[combo.teamA[0]],
+              player2: playerList[combo.teamA[1]],
+              avgElo: teamA_avg
+            },
+            teamB: {
+              player1: playerList[combo.teamB[0]],
+              player2: playerList[combo.teamB[1]],
+              avgElo: teamB_avg
+            },
+            difference: Math.round(difference)
+          };
+        }
+      }
+      
+      return bestCombination;
+    }
+    
+    // 자동 매칭 결과 렌더링
+    function renderAutoMatches(result) {
+      const container = document.getElementById('match-results');
+      
+      container.innerHTML = `
+        <h3>매칭 결과</h3>
+        <p>총 ${result.stats.totalPlayers}명 중 ${result.stats.activePlayers}명 배정, ${result.stats.waitingPlayers}명 대기</p>
+        
+        ${result.matches.map(m => `
+          <div class="match-card">
+            <h3>🎾 코트 ${m.courtNumber}</h3>
+            
+            <div class="team">
+              <div class="team-players">${m.teamA.player1.name} + ${m.teamA.player2.name}</div>
+              <div class="team-elo">평균 ELO: ${Math.round(m.teamA.avgElo)}</div>
+            </div>
+            
+            <div class="vs-divider">VS</div>
+            
+            <div class="team">
+              <div class="team-players">${m.teamB.player1.name} + ${m.teamB.player2.name}</div>
+              <div class="team-elo">평균 ELO: ${Math.round(m.teamB.avgElo)}</div>
+            </div>
+            
+            <p style="text-align: center; margin-top: 12px; color: #667eea; font-weight: 600;">
+              점수 차이: ${m.difference}점
+            </p>
+          </div>
+        `).join('')}
+        
+        ${result.waitingPlayers.length > 0 ? `
+          <div class="match-card">
+            <h3>⏸ 대기 인원</h3>
+            <p>${result.waitingPlayers.map(p => p.name).join(', ')}</p>
+          </div>
+        ` : ''}
+      `;
+    }
+    
+    // 기본 날짜 설정
+    function setDefaultDate() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('match-date').value = today;
+    }
+  </script>
+</body>
+</html>
