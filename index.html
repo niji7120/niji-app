@@ -25,20 +25,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 15px; overflow: hidden; }
 
-  /* ===== FONT SIZE CONTROL ===== */
-  .font-ctrl {
-    display: flex; align-items: center; gap: 4px;
-  }
-  .font-btn {
-    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-    color: var(--text-muted); cursor: pointer; font-family: inherit; font-weight: 700;
-    width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-    font-size: 13px; transition: all .2s; line-height: 1;
-  }
-  .font-btn:active { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .font-size-label {
-    font-size: 11px; color: var(--text-muted); min-width: 26px; text-align: center; font-weight: 600;
-  }
+
 
   /* ===== APP SHELL ===== */
   #app { display: flex; flex-direction: column; height: 100vh; max-width: 480px; margin: 0 auto; position: relative; }
@@ -68,6 +55,8 @@
   .content::-webkit-scrollbar { width: 4px; }
   .content::-webkit-scrollbar-track { background: transparent; }
   .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  /* 프로필 페이지는 패딩 제거 */
+  .content:has(#page-profile.active) { padding: 0; }
 
   /* ===== BOTTOM NAV ===== */
   .nav {
@@ -437,97 +426,167 @@
 
   .page-header { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
   .page-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+  /* ===== NEW PROFILE DESIGN ===== */
+  .profile-page { padding: 0 !important; }
+
+  /* 상단 히어로 — 사진 꽉 채움 */
+  .profile-hero-new {
+    position: relative; width: 100%; height: 320px;
+    background: linear-gradient(160deg, #1a2a1a 0%, #0f1a2a 60%, #1a0f2a 100%);
+    overflow: hidden; cursor: pointer;
+    display: flex; align-items: flex-end;
+  }
+  .profile-hero-bg {
+    position: absolute; inset: 0;
+    object-fit: cover; width: 100%; height: 100%;
+    opacity: .85;
+  }
+  .profile-hero-gradient {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,.1) 0%, rgba(0,0,0,.0) 40%, rgba(15,15,19,.95) 100%);
+  }
+  .profile-hero-upload-hint {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.2);
+    border-radius: 20px; padding: 5px 12px;
+    font-size: 11px; color: rgba(255,255,255,.7);
+    backdrop-filter: blur(6px);
+  }
+  .profile-hero-initial {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 80px; font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .profile-hero-name {
+    position: relative; z-index: 2;
+    padding: 0 20px 18px;
+    font-size: 28px; font-weight: 900; color: #fff;
+    text-shadow: 0 2px 12px rgba(0,0,0,.8);
+    line-height: 1.1;
+  }
+  .profile-hero-name span {
+    display: block; font-size: 13px; font-weight: 400;
+    color: rgba(255,255,255,.6); margin-bottom: 4px; letter-spacing: 1px;
+  }
+
+  /* 인포 카드 그리드 */
+  .profile-info-section { padding: 16px 16px 0; }
+  .profile-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .profile-info-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+  }
+  .profile-info-card.full { grid-column: 1 / -1; }
+  .profile-info-icon {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    background: rgba(124,106,247,.12); border: 1px solid rgba(124,106,247,.2);
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+  .profile-info-icon.green { background: rgba(74,222,128,.1); border-color: rgba(74,222,128,.2); }
+  .profile-info-icon.pink  { background: rgba(247,106,200,.1); border-color: rgba(247,106,200,.2); }
+  .profile-info-icon.warn  { background: rgba(251,191,36,.1);  border-color: rgba(251,191,36,.2); }
+  .profile-info-icon.blue  { background: rgba(96,165,250,.1);  border-color: rgba(96,165,250,.2); }
+  .profile-info-text { min-width: 0; }
+  .profile-info-label { font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: .8px; text-transform: uppercase; margin-bottom: 2px; }
+  .profile-info-value { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .profile-info-value.empty { color: var(--text-muted); font-weight: 400; font-size: 12px; }
 </style>
 </head>
 <body>
 <div id="app">
   <div class="topbar">
     <span class="topbar-logo">니지스트링</span>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <div class="font-ctrl">
-        <button class="font-btn" onclick="changeFontSize(-1)" title="글자 작게">A−</button>
-        <span class="font-size-label" id="fontSizeLabel">15</span>
-        <button class="font-btn" onclick="changeFontSize(1)" title="글자 크게">A+</button>
-      </div>
-      <div class="topbar-avatar" id="avatarBtn" onclick="showPage('profile')">A</div>
-    </div>
+    <div class="topbar-avatar" id="avatarBtn" onclick="showPage('profile')">A</div>
   </div>
 
   <div class="content">
     <!-- ===== PROFILE PAGE ===== -->
-    <div class="page active" id="page-profile">
-      <div class="profile-hero">
-        <div class="profile-avatar-big" id="profileAvatarBig" onclick="document.getElementById('photoUpload').click()" style="cursor:pointer;position:relative;overflow:hidden;">
-          <span id="avatarInitial">A</span>
-          <img id="avatarImage" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">
+    <div class="page active profile-page" id="page-profile">
+
+      <!-- 히어로 영역 (사진 클릭으로 업로드) -->
+      <div class="profile-hero-new" id="profileHeroNew" onclick="document.getElementById('photoUpload').click()">
+        <img id="avatarImage" class="profile-hero-bg" style="display:none;">
+        <div class="profile-hero-gradient"></div>
+        <div class="profile-hero-upload-hint">📷 사진 변경</div>
+        <div class="profile-hero-initial" id="avatarInitial">A</div>
+        <div class="profile-hero-name" id="profileNameBig">
+          <span id="profileClubBig"></span>
+          선수
         </div>
-        <input type="file" id="photoUpload" accept="image/*" style="display:none" onchange="uploadPhoto(this)">
-        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;cursor:pointer;" onclick="document.getElementById('photoUpload').click()">📷 사진 변경</div>
-        <div class="profile-name-big" id="profileNameBig">선수</div>
-        <div class="profile-sub" id="profileSubBig">정보 없음</div>
-        <div id="profileGearBig" style="margin-top:10px;display:flex;flex-direction:column;gap:4px;align-items:center;"></div>
       </div>
-      
-      <button class="btn btn-secondary" onclick="toggleProfileSettings()" style="margin-bottom:12px;">
-        ⚙️ <span id="settingsToggleText">프로필 설정 열기</span>
-      </button>
-      
-      <div class="card" id="profileSettings" style="display:none;">
-        <div class="card-title">프로필 설정</div>
-        <div class="form-group">
-          <label class="form-label">이름</label>
-          <input class="form-input" id="profileName" placeholder="이름 입력">
+      <input type="file" id="photoUpload" accept="image/*" style="display:none" onchange="uploadPhoto(this)">
+
+      <!-- 인포 카드들 -->
+      <div class="profile-info-section" id="profileInfoSection">
+        <div class="profile-info-grid" id="profileInfoGrid"></div>
+      </div>
+
+      <!-- 설정 버튼 + 폼 -->
+      <div style="padding: 12px 16px 16px;">
+        <button class="btn btn-secondary" onclick="toggleProfileSettings()" style="margin-bottom:12px;">
+          ⚙️ <span id="settingsToggleText">프로필 설정 열기</span>
+        </button>
+
+        <div class="card" id="profileSettings" style="display:none;">
+          <div class="card-title">프로필 설정</div>
+          <div class="form-group">
+            <label class="form-label">이름</label>
+            <input class="form-input" id="profileName" placeholder="이름 입력">
+          </div>
+          <div class="form-group">
+            <label class="form-label">소속 클럽</label>
+            <input class="form-input" id="profileClub" placeholder="클럽 이름 입력">
+          </div>
+          <div class="form-group">
+            <label class="form-label">나이대</label>
+            <select class="form-select" id="profileAge">
+              <option value="">선택</option>
+              <option>10대</option><option>20대</option><option>30대</option>
+              <option>40대</option><option>50대</option><option>60대 이상</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">경력</label>
+            <select class="form-select" id="profileCareer">
+              <option value="">선택</option>
+              <option>6개월 미만</option><option>6개월~1년</option><option>1~2년</option>
+              <option>2~5년</option><option>5~10년</option><option>10년 이상</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">손잡이</label>
+            <select class="form-select" id="profileHand">
+              <option value="">선택</option>
+              <option>오른손</option><option>왼손</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">플레이 스타일</label>
+            <select class="form-select" id="profileStyle">
+              <option value="">선택</option>
+              <option>공격형</option><option>수비형</option><option>올라운드</option>
+              <option>네트플레이</option><option>베이스라인</option>
+            </select>
+          </div>
+          <div style="height:1px;background:var(--border);margin:4px 0 14px;"></div>
+          <div class="card-title" style="margin-bottom:10px;">🏸 장비 정보</div>
+          <div class="form-group">
+            <label class="form-label">라켓</label>
+            <input class="form-input" id="profileRacket" placeholder="예) 요넥스 아크세이버 11 PRO">
+          </div>
+          <div class="form-group">
+            <label class="form-label">스트링</label>
+            <input class="form-input" id="profileString" placeholder="예) 니지스트링 NZ-01">
+          </div>
+          <div class="form-group">
+            <label class="form-label">텐션</label>
+            <input class="form-input" id="profileTension" placeholder="예) 24파운드">
+          </div>
+          <button class="btn btn-primary" onclick="saveProfile()">저장</button>
         </div>
-        <div class="form-group">
-          <label class="form-label">소속 클럽</label>
-          <input class="form-input" id="profileClub" placeholder="클럽 이름 입력">
-        </div>
-        <div class="form-group">
-          <label class="form-label">나이대</label>
-          <select class="form-select" id="profileAge">
-            <option value="">선택</option>
-            <option>10대</option><option>20대</option><option>30대</option>
-            <option>40대</option><option>50대</option><option>60대 이상</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">경력</label>
-          <select class="form-select" id="profileCareer">
-            <option value="">선택</option>
-            <option>6개월 미만</option><option>6개월~1년</option><option>1~2년</option>
-            <option>2~5년</option><option>5~10년</option><option>10년 이상</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">손잡이</label>
-          <select class="form-select" id="profileHand">
-            <option value="">선택</option>
-            <option>오른손</option><option>왼손</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">플레이 스타일</label>
-          <select class="form-select" id="profileStyle">
-            <option value="">선택</option>
-            <option>공격형</option><option>수비형</option><option>올라운드</option>
-            <option>네트플레이</option><option>베이스라인</option>
-          </select>
-        </div>
-        <div style="height:1px;background:var(--border);margin:4px 0 14px;"></div>
-        <div class="card-title" style="margin-bottom:10px;">🏸 장비 정보</div>
-        <div class="form-group">
-          <label class="form-label">라켓</label>
-          <input class="form-input" id="profileRacket" placeholder="예) 요넥스 아크세이버 11 PRO">
-        </div>
-        <div class="form-group">
-          <label class="form-label">스트링</label>
-          <input class="form-input" id="profileString" placeholder="예) 니지스트링 NZ-01">
-        </div>
-        <div class="form-group">
-          <label class="form-label">텐션</label>
-          <input class="form-input" id="profileTension" placeholder="예) 24파운드">
-        </div>
-        <button class="btn btn-primary" onclick="saveProfile()">저장</button>
       </div>
     </div>
 
@@ -948,11 +1007,18 @@ function renderProfile() {
   const p = state.profile;
   const name = p.name || '선수';
   const initial = name.charAt(0).toUpperCase();
-  
-  // Update topbar avatar
+
+  // 탑바 아바타
   document.getElementById('avatarBtn').textContent = initial;
-  
-  // Update profile page avatar
+
+  // 히어로 이름
+  document.getElementById('profileNameBig').childNodes[2]
+    ? (document.getElementById('profileNameBig').lastChild.textContent = name)
+    : null;
+  document.getElementById('profileNameBig').innerHTML =
+    `<span>${p.club ? '🏠 ' + escHtml(p.club) : ''}</span>${escHtml(name)}`;
+
+  // 히어로 사진 or 이니셜
   const avatarInitial = document.getElementById('avatarInitial');
   const avatarImage = document.getElementById('avatarImage');
   if (p.photo) {
@@ -964,22 +1030,40 @@ function renderProfile() {
     avatarInitial.style.display = 'flex';
     avatarImage.style.display = 'none';
   }
-  
-  document.getElementById('profileNameBig').textContent = name;
-  const sub = [p.club, p.age, p.career, p.hand, p.style].filter(Boolean).join(' · ') || '정보 없음';
-  document.getElementById('profileSubBig').textContent = sub;
 
-  // 장비 정보 표시
-  const gearEl = document.getElementById('profileGearBig');
-  const gearItems = [
-    p.racket ? `🏸 ${p.racket}` : '',
-    p.string ? `🎵 ${p.string}` : '',
-    p.tension ? `⚡ ${p.tension}` : '',
-  ].filter(Boolean);
-  gearEl.innerHTML = gearItems.map(g =>
-    `<span style="font-size:11px;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;">${g}</span>`
-  ).join('');
+  // 인포 카드 렌더링
+  const infoItems = [
+    { icon: '👤', color: '', label: 'NAME', value: name, full: false },
+    { icon: '🕐', color: 'green', label: 'AGE', value: p.age, full: false },
+    { icon: '✋', color: 'warn', label: 'HAND', value: p.hand, full: false },
+    { icon: '⏱', color: 'blue', label: 'EXP', value: p.career, full: false },
+    { icon: '🎯', color: 'pink', label: 'STYLE', value: p.style, full: true },
+    { icon: '🏸', color: '', label: 'RACQUET', value: p.racket, full: true },
+    { icon: '🎵', color: 'green', label: 'STRING', value: p.string, full: false },
+    { icon: '⚡', color: 'warn', label: 'TENSION', value: p.tension, full: false },
+  ].filter(item => item.value);
 
+  const grid = document.getElementById('profileInfoGrid');
+  if (!infoItems.length) {
+    grid.innerHTML = `<div class="profile-info-card full">
+      <div class="profile-info-icon">✏️</div>
+      <div class="profile-info-text">
+        <div class="profile-info-label">프로필 미설정</div>
+        <div class="profile-info-value empty">아래 설정 버튼을 눌러 입력하세요</div>
+      </div>
+    </div>`;
+  } else {
+    grid.innerHTML = infoItems.map(item => `
+      <div class="profile-info-card${item.full ? ' full' : ''}">
+        <div class="profile-info-icon ${item.color}">${item.icon}</div>
+        <div class="profile-info-text">
+          <div class="profile-info-label">${item.label}</div>
+          <div class="profile-info-value">${escHtml(item.value)}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // 설정 폼 값 채우기
   document.getElementById('profileName').value = p.name || '';
   document.getElementById('profileClub').value = p.club || '';
   document.getElementById('profileAge').value = p.age || '';
@@ -1540,27 +1624,7 @@ function setTodayDate() {
   document.getElementById('matchDate').value = today;
 }
 
-// ===== FONT SIZE =====
-const FONT_MIN = 12, FONT_MAX = 20, FONT_DEFAULT = 15;
-function applyFontSize(size) {
-  const zoom = size / 15;
-  document.getElementById('app').style.zoom = zoom;
-  const label = document.getElementById('fontSizeLabel');
-  if (label) label.textContent = size;
-  localStorage.setItem('nijiFontSize', size);
-}
-function changeFontSize(delta) {
-  const cur = parseInt(localStorage.getItem('nijiFontSize') || FONT_DEFAULT);
-  const next = Math.min(FONT_MAX, Math.max(FONT_MIN, cur + delta));
-  applyFontSize(next);
-}
-function loadFontSize() {
-  const saved = parseInt(localStorage.getItem('nijiFontSize') || FONT_DEFAULT);
-  applyFontSize(saved);
-}
-
 // ===== INIT =====
-loadFontSize();
 load();
 renderProfile();
 renderMatchList();
