@@ -351,6 +351,74 @@
   .opponent-name { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
   .bar-track { background: var(--surface2); border-radius: 20px; height: 6px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .5s ease; }
+  .bar-fill-partner { height: 100%; border-radius: 20px; background: linear-gradient(90deg, #2dd4bf, #34d399); transition: width .5s ease; }
+  .rate-partner { color: #2dd4bf; font-weight: 700; }
+  .rate-opponent { color: var(--accent); font-weight: 700; }
+
+  /* ===== FORMAT TOGGLE BUTTONS ===== */
+  .format-toggle { display: flex; gap: 8px; }
+  .format-btn {
+    flex: 1; padding: 11px 14px; border-radius: 10px;
+    border: 1.5px solid var(--border); background: var(--surface2);
+    color: var(--text-muted); font-family: inherit; font-size: 14px;
+    font-weight: 600; cursor: pointer; transition: all .2s; text-align: center;
+  }
+  .format-btn.selected {
+    border-color: var(--accent); background: rgba(124,106,247,.15); color: var(--accent);
+  }
+
+  /* ===== CLUB BADGE ===== */
+  .club-badge {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 20px; margin-left: 6px;
+    background: rgba(247,106,200,.15); color: var(--accent2);
+    border: 1px solid rgba(247,106,200,.3); vertical-align: middle;
+  }
+  .club-badge.my-club {
+    background: rgba(124,106,247,.15); color: var(--accent);
+    border: 1px solid rgba(124,106,247,.3);
+  }
+
+  /* ===== CLUB FILTER TABS ===== */
+  .club-filter-wrap { margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
+  .club-filter-wrap::-webkit-scrollbar { height: 0; }
+  .club-filter { display: flex; gap: 6px; min-width: max-content; }
+  .club-filter-btn {
+    padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text-muted); font-family: inherit;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; white-space: nowrap;
+  }
+  .club-filter-btn.active { border-color: var(--accent); background: rgba(124,106,247,.15); color: var(--accent); }
+
+  /* ===== CLUB MANAGE ===== */
+  .club-section { margin-bottom: 14px; }
+  .club-add-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .club-tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .club-tag {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 10px 4px 12px; font-size: 12px; font-weight: 600;
+  }
+  .club-tag-del {
+    background: none; border: none; color: var(--text-muted); cursor: pointer;
+    font-size: 13px; line-height: 1; padding: 0; transition: color .2s;
+  }
+  .club-tag-del:hover { color: var(--danger); }
+
+  /* ===== ASSIGN CLUB AREA ===== */
+  .player-club-area {
+    border-top: 1px solid var(--border); padding: 10px 14px;
+    background: rgba(247,106,200,.04); display: none;
+  }
+  .player-club-area.open { display: block; }
+  .club-assign-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .club-assign-btn {
+    padding: 5px 12px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--text-muted); font-family: inherit;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s;
+  }
+  .club-assign-btn.selected { border-color: var(--accent2); background: rgba(247,106,200,.15); color: var(--accent2); }
+  .club-assign-btn.none-btn.selected { border-color: var(--border); background: var(--surface2); color: var(--text-muted); }
 
   .page-header { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
   .page-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
@@ -435,11 +503,11 @@
         </div>
         <div class="form-group">
           <label class="form-label">형식</label>
-          <select class="form-select" id="matchFormat" onchange="togglePartner()">
-            <option value="">선택</option>
-            <option value="singles">단식</option>
-            <option value="doubles">복식</option>
-          </select>
+          <div class="format-toggle">
+            <button class="format-btn" id="btnSingles" onclick="selectFormat('singles')">🏸 단식</button>
+            <button class="format-btn" id="btnDoubles" onclick="selectFormat('doubles')">🤝 복식</button>
+          </div>
+          <input type="hidden" id="matchFormat">
         </div>
         <div class="form-group" id="partnerGroup" style="display:none">
           <label class="form-label">파트너</label>
@@ -539,6 +607,7 @@
       </div>
 
       <div class="section-title">선수 순위</div>
+      <div class="club-filter-wrap" id="rankingClubFilter"></div>
       <div class="card" id="rankingCard">
         <div class="empty-state"><div class="empty-icon">🏸</div><div class="empty-text">경기를 입력하면<br>순위가 표시됩니다</div></div>
       </div>
@@ -559,10 +628,24 @@
       <div class="page-header">선수 목록</div>
       <div class="page-sub">등록된 선수를 관리하세요</div>
 
+      <!-- 클럽 관리 -->
+      <div class="card club-section">
+        <div class="card-title">🏠 클럽 관리</div>
+        <div class="club-add-row">
+          <input class="form-input" id="newClubName" placeholder="클럽 이름 입력" onkeydown="if(event.key==='Enter')addClub()">
+          <button class="btn btn-primary btn-sm" onclick="addClub()" style="white-space:nowrap;padding:0 16px;">+ 추가</button>
+        </div>
+        <div class="club-tag-list" id="clubTagList"></div>
+      </div>
+
+      <!-- 선수 추가 -->
       <div class="add-player-row">
         <input class="form-input" id="newPlayerName" placeholder="선수 이름 입력" onkeydown="if(event.key==='Enter')addPlayer()">
         <button class="btn btn-primary btn-sm" onclick="addPlayer()" style="white-space:nowrap;padding:0 16px;">+ 추가</button>
       </div>
+
+      <!-- 클럽 필터 -->
+      <div class="club-filter-wrap" id="playerClubFilter"></div>
 
       <ul class="player-list" id="playerList"></ul>
     </div>
@@ -688,11 +771,14 @@
 let state = {
   profile: { name: '', age: '', career: '', hand: '', style: '', photo: '' },
   matches: [],
-  players: [],  // { id, name, memo }
+  players: [],  // { id, name, memo, club }
+  clubs: [],    // ['클럽A', '클럽B', ...]
   currentResult: null,
   nextMatchId: 1,
   nextPlayerId: 1,
   sportType: 'badminton',
+  rankingClubFilter: '전체',
+  playerClubFilter: '전체',
 };
 
 let confirmCallback = null;
@@ -709,8 +795,11 @@ function load() {
       state.players = state.players.map((n, i) => ({ id: i + 1, name: n, memo: '' }));
       state.nextPlayerId = state.players.length + 1;
     }
-    // ensure all players have memo field
-    state.players = state.players.map(p => ({ memo: '', ...p }));
+    // ensure all players have memo and club field
+    state.players = state.players.map(p => ({ memo: '', club: '', ...p }));
+    if (!state.clubs) state.clubs = [];
+    if (!state.rankingClubFilter) state.rankingClubFilter = '전체';
+    if (!state.playerClubFilter) state.playerClubFilter = '전체';
     if (!state.nextMatchId) state.nextMatchId = state.matches.length + 1;
     if (!state.nextPlayerId) state.nextPlayerId = state.players.length + 1;
     if (!state.sportType) state.sportType = 'badminton';
@@ -842,6 +931,12 @@ function renderProfile() {
 }
 
 // ===== MATCH =====
+function selectFormat(fmt) {
+  document.getElementById('matchFormat').value = fmt;
+  document.getElementById('btnSingles').classList.toggle('selected', fmt === 'singles');
+  document.getElementById('btnDoubles').classList.toggle('selected', fmt === 'doubles');
+  togglePartner();
+}
 function togglePartner() {
   const fmt = document.getElementById('matchFormat').value;
   document.getElementById('partnerGroup').style.display = fmt === 'doubles' ? 'block' : 'none';
@@ -891,6 +986,8 @@ function saveMatch() {
   document.getElementById('loseBtn').className = 'winner-btn';
   document.getElementById('matchDate').value = '';
   document.getElementById('matchFormat').value = '';
+  document.getElementById('btnSingles').classList.remove('selected');
+  document.getElementById('btnDoubles').classList.remove('selected');
   document.getElementById('matchOpponent').value = '';
   document.getElementById('matchOpponent2').value = '';
   document.getElementById('matchPartner').value = '';
@@ -978,92 +1075,96 @@ function renderStats() {
   renderOpponentStats();
 }
 
+function setRankingClubFilter(club) {
+  state.rankingClubFilter = club;
+  renderRanking();
+}
+
+function renderRankingClubFilter() {
+  const el = document.getElementById('rankingClubFilter');
+  if (!el) return;
+  if (!state.clubs.length) { el.innerHTML = ''; return; }
+  const tabs = ['전체', ...state.clubs];
+  el.innerHTML = `<div class="club-filter">${tabs.map(c =>
+    `<button class="club-filter-btn${state.rankingClubFilter===c?' active':''}" onclick="setRankingClubFilter('${escHtml(c)}')">${escHtml(c)}</button>`
+  ).join('')}</div>`;
+}
+
 function renderRanking() {
+  renderRankingClubFilter();
   const myName = state.profile.name || '나';
+  const myClub = (state.players.find(p => p.name === myName) || {}).club || '';
+  const filterClub = state.rankingClubFilter;
+
   const playerMap = {};
-  
-  // 내 점수 계산
   let myStats = { w: 0, l: 0, points: 0 };
-  
+
   state.matches.forEach(m => {
-    // 내 전적 계산
-    if (m.result === 'win') {
-      myStats.w++;
-      myStats.points += 2;
-    } else {
-      myStats.l++;
-      myStats.points -= 1;
-    }
-    
-    // 다른 선수들 전적 계산
+    if (m.result === 'win') { myStats.w++; myStats.points += 2; }
+    else { myStats.l++; myStats.points -= 1; }
+
     [m.opponent, m.opponent2, m.partner].filter(Boolean).forEach(name => {
       if (name === myName) return;
-      
       if (!playerMap[name]) playerMap[name] = { w: 0, l: 0, points: 0 };
-      
-      // 상대편인 경우
       if (name === m.opponent || name === m.opponent2) {
-        if (m.result === 'win') {
-          playerMap[name].l++;
-          playerMap[name].points -= 1;
-        } else {
-          playerMap[name].w++;
-          playerMap[name].points += 2;
-        }
-      }
-      // 파트너인 경우
-      else if (name === m.partner) {
-        if (m.result === 'win') {
-          playerMap[name].w++;
-          playerMap[name].points += 2;
-        } else {
-          playerMap[name].l++;
-          playerMap[name].points -= 1;
-        }
+        if (m.result === 'win') { playerMap[name].l++; playerMap[name].points -= 1; }
+        else { playerMap[name].w++; playerMap[name].points += 2; }
+      } else if (name === m.partner) {
+        if (m.result === 'win') { playerMap[name].w++; playerMap[name].points += 2; }
+        else { playerMap[name].l++; playerMap[name].points -= 1; }
       }
     });
   });
-  
-  // 나를 playerMap에 추가
-  if (state.matches.length > 0) {
-    playerMap[myName] = myStats;
+
+  if (state.matches.length > 0) playerMap[myName] = myStats;
+
+  // 클럽 필터 적용
+  let filtered = Object.entries(playerMap);
+  if (filterClub !== '전체') {
+    filtered = filtered.filter(([name]) => {
+      if (name === myName) return myClub === filterClub;
+      const p = state.players.find(pl => pl.name === name);
+      return p && p.club === filterClub;
+    });
   }
-  
-  // 점수 우선, 승률 차순위로 정렬
-  const sorted = Object.entries(playerMap).sort((a, b) => {
-    const [nameA, dataA] = a;
-    const [nameB, dataB] = b;
-    
-    // 1순위: 점수
-    if (dataB.points !== dataA.points) {
-      return dataB.points - dataA.points;
-    }
-    
-    // 2순위: 승률
-    const totalA = dataA.w + dataA.l;
-    const totalB = dataB.w + dataB.l;
-    const rateA = totalA ? dataA.w / totalA : 0;
-    const rateB = totalB ? dataB.w / totalB : 0;
+
+  // 정렬
+  const sorted = filtered.sort((a, b) => {
+    const [,dataA] = a; const [,dataB] = b;
+    if (dataB.points !== dataA.points) return dataB.points - dataA.points;
+    const totalA = dataA.w + dataA.l; const totalB = dataB.w + dataB.l;
+    const rateA = totalA ? dataA.w / totalA : 0; const rateB = totalB ? dataB.w / totalB : 0;
     return rateB - rateA;
   });
-  
+
+  const sportIcon = state.sportType === 'tennis' ? '🎾' : '🏸';
   if (!sorted.length) {
-    const sportIcon = state.sportType === 'tennis' ? '🎾' : '🏸';
     document.getElementById('rankingCard').innerHTML = `<div class="empty-state"><div class="empty-icon">${sportIcon}</div><div class="empty-text">경기를 입력하면 순위가 표시됩니다</div></div>`;
     return;
   }
-  
+
+  // 헤더 레이블
+  const titleLabel = filterClub === '전체'
+    ? '종합 순위'
+    : `${filterClub} 클럽 순위`;
+
   const rows = sorted.map(([name, d], i) => {
     const total = d.w + d.l;
     const rate = Math.round(d.w / total * 100);
     const isMe = name === myName;
+    // 클럽 전체 보기일 때 클럽 배지 표시
+    const playerClub = isMe ? myClub : (state.players.find(pl => pl.name === name) || {}).club || '';
+    const clubTag = (filterClub === '전체' && playerClub)
+      ? `<span class="club-badge${isMe&&playerClub?' my-club':''}">${escHtml(playerClub)}</span>` : '';
     const cls = isMe ? 'rank-me' : i === 0 ? 'rank-first' : i === 1 ? 'rank-second' : i === 2 ? 'rank-third' : '';
     const pointsStr = d.points >= 0 ? `+${d.points}` : d.points;
-    const nameDisplay = isMe ? `<strong>${name}</strong>` : name;
+    const nameDisplay = isMe ? `<strong>${name}</strong>${clubTag}` : `${name}${clubTag}`;
     return `<tr class="${cls}"><td class="rank-num">${i+1}</td><td>${nameDisplay}</td><td style="font-weight:700;color:var(--accent);">${pointsStr}점</td><td>${total}전</td><td class="rank-rate">${rate}%</td></tr>`;
   }).join('');
-  
-  document.getElementById('rankingCard').innerHTML = `<table class="rank-table"><thead><tr><th></th><th>선수</th><th>점수</th><th>경기</th><th>승률</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+  document.getElementById('rankingCard').innerHTML = `
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;font-weight:700;letter-spacing:.5px;">${titleLabel}</div>
+    <table class="rank-table"><thead><tr><th></th><th>선수</th><th>점수</th><th>경기</th><th>승률</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function renderPartnerStats() {
@@ -1079,7 +1180,7 @@ function renderPartnerStats() {
   }
   const html = Object.entries(pm).sort((a,b)=>(b[1].w+b[1].l)-(a[1].w+a[1].l)).map(([name,d])=>{
     const total = d.w+d.l; const rate=Math.round(d.w/total*100);
-    return `<div class="opponent-bar"><div class="opponent-name"><span>${name}</span><span style="color:var(--accent);font-weight:700;">${d.w}승${d.l}패 (${rate}%)</span></div><div class="bar-track"><div class="bar-fill" style="width:${rate}%"></div></div></div>`;
+    return `<div class="opponent-bar"><div class="opponent-name"><span>${name}</span><span class="rate-partner">${d.w}승${d.l}패 (${rate}%)</span></div><div class="bar-track"><div class="bar-fill-partner" style="width:${rate}%"></div></div></div>`;
   }).join('');
   document.getElementById('partnerCard').innerHTML = html;
 }
@@ -1098,9 +1199,78 @@ function renderOpponentStats() {
   }
   const html = Object.entries(om).sort((a,b)=>(b[1].w+b[1].l)-(a[1].w+a[1].l)).map(([name,d])=>{
     const total=d.w+d.l; const rate=Math.round(d.w/total*100);
-    return `<div class="opponent-bar"><div class="opponent-name"><span>${name}</span><span style="color:var(--accent);font-weight:700;">${d.w}승${d.l}패 (${rate}%)</span></div><div class="bar-track"><div class="bar-fill" style="width:${rate}%"></div></div></div>`;
+    return `<div class="opponent-bar"><div class="opponent-name"><span>${name}</span><span class="rate-opponent">${d.w}승${d.l}패 (${rate}%)</span></div><div class="bar-track"><div class="bar-fill" style="width:${rate}%"></div></div></div>`;
   }).join('');
   document.getElementById('opponentCard').innerHTML = html;
+}
+
+// ===== CLUBS =====
+function addClub() {
+  const name = document.getElementById('newClubName').value.trim();
+  if (!name) { showToast('⚠️ 클럽 이름을 입력하세요'); return; }
+  if (state.clubs.includes(name)) { showToast('⚠️ 이미 등록된 클럽입니다'); return; }
+  state.clubs.push(name);
+  save();
+  document.getElementById('newClubName').value = '';
+  renderClubTags();
+  renderPlayers();
+  showToast(`✅ ${name} 클럽 추가 완료!`);
+}
+
+function deleteClub(name) {
+  showConfirm(`"${name}" 클럽 삭제`, '클럽을 삭제해도 선수 기록은 유지됩니다. 소속 선수는 클럽 없음으로 변경됩니다.', '🏠', () => {
+    state.clubs = state.clubs.filter(c => c !== name);
+    state.players.forEach(p => { if (p.club === name) p.club = ''; });
+    if (state.rankingClubFilter === name) state.rankingClubFilter = '전체';
+    if (state.playerClubFilter === name) state.playerClubFilter = '전체';
+    save();
+    renderClubTags();
+    renderPlayers();
+    showToast('🗑️ 클럽 삭제 완료');
+  });
+}
+
+function renderClubTags() {
+  const el = document.getElementById('clubTagList');
+  if (!state.clubs.length) {
+    el.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">등록된 클럽이 없습니다</span>';
+    return;
+  }
+  el.innerHTML = state.clubs.map(c =>
+    `<div class="club-tag">
+      <span>${escHtml(c)}</span>
+      <button class="club-tag-del" onclick="deleteClub('${escHtml(c)}')" title="클럽 삭제">✕</button>
+    </div>`
+  ).join('');
+}
+
+function setPlayerClubFilter(club) {
+  state.playerClubFilter = club;
+  renderPlayers();
+}
+
+function renderPlayerClubFilter() {
+  const el = document.getElementById('playerClubFilter');
+  if (!state.clubs.length) { el.innerHTML = ''; return; }
+  const all = ['전체', ...state.clubs, '클럽 없음'];
+  el.innerHTML = `<div class="club-filter">${all.map(c =>
+    `<button class="club-filter-btn${state.playerClubFilter===c?' active':''}" onclick="setPlayerClubFilter('${escHtml(c)}')">${escHtml(c)}</button>`
+  ).join('')}</div>`;
+}
+
+function toggleClubAssign(id) {
+  const area = document.getElementById('clubArea-' + id);
+  document.querySelectorAll('.player-edit-area.open, .player-memo-area.open, .player-club-area.open').forEach(a => a.classList.remove('open'));
+  if (area && !area.classList.contains('open')) area.classList.add('open');
+}
+
+function assignClub(playerId, club) {
+  const player = state.players.find(p => p.id === playerId);
+  if (!player) return;
+  player.club = club;
+  save();
+  renderPlayers();
+  showToast(club ? `🏠 ${club} 배정 완료!` : '클럽 해제 완료');
 }
 
 // ===== PLAYERS =====
@@ -1108,7 +1278,7 @@ function addPlayer() {
   const name = document.getElementById('newPlayerName').value.trim();
   if (!name) { showToast('⚠️ 이름을 입력하세요'); return; }
   if (state.players.find(p => p.name === name)) { showToast('⚠️ 이미 등록된 선수입니다'); return; }
-  state.players.push({ id: state.nextPlayerId++, name, memo: '' });
+  state.players.push({ id: state.nextPlayerId++, name, memo: '', club: '' });
   save();
   document.getElementById('newPlayerName').value = '';
   renderPlayers();
@@ -1116,19 +1286,35 @@ function addPlayer() {
 }
 
 function renderPlayers() {
+  renderClubTags();
+  renderPlayerClubFilter();
   const el = document.getElementById('playerList');
-  if (!state.players.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">선수를 추가해보세요!</div></div>';
+
+  // 필터 적용
+  let filtered = state.players;
+  if (state.playerClubFilter !== '전체') {
+    if (state.playerClubFilter === '클럽 없음') {
+      filtered = state.players.filter(p => !p.club);
+    } else {
+      filtered = state.players.filter(p => p.club === state.playerClubFilter);
+    }
+  }
+
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">${state.playerClubFilter === '전체' ? '선수를 추가해보세요!' : '해당 클럽에 선수가 없습니다'}</div></div>`;
     return;
   }
-  el.innerHTML = state.players.map(p => {
+  el.innerHTML = filtered.map(p => {
     const initial = p.name.charAt(0);
     const memoPreview = p.memo ? `<div class="player-memo-preview">📝 메모: ${p.memo}</div>` : '';
+    const clubDisplay = p.club
+      ? `<span class="club-badge">${escHtml(p.club)}</span>`
+      : (state.clubs.length ? `<span style="font-size:10px;color:var(--text-muted);"> · 클럽 없음</span>` : '');
     return `<li class="player-item" id="playerItem-${p.id}">
       <div class="player-item-main">
         <div class="player-avatar-sm">${initial}</div>
         <div class="player-info">
-          <div class="player-name">${escHtml(p.name)}</div>
+          <div class="player-name">${escHtml(p.name)}${clubDisplay}</div>
           <div class="player-meta">등록된 선수</div>
           ${memoPreview}
         </div>
@@ -1136,6 +1322,9 @@ function renderPlayers() {
           <button class="player-action-btn edit-btn" onclick="toggleEdit(${p.id})" title="이름 수정">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
+          ${state.clubs.length ? `<button class="player-action-btn" onclick="toggleClubAssign(${p.id})" title="클럽 배정" style="color:var(--accent2);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </button>` : ''}
           <button class="player-action-btn" onclick="toggleMemo(${p.id})" title="메모 추가/수정" style="color:var(--accent);">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           </button>
@@ -1144,6 +1333,14 @@ function renderPlayers() {
           </button>
         </div>
       </div>
+      <!-- CLUB ASSIGN AREA -->
+      ${state.clubs.length ? `<div class="player-club-area" id="clubArea-${p.id}">
+        <div class="memo-label">🏠 클럽 배정</div>
+        <div class="club-assign-btns">
+          <button class="club-assign-btn none-btn${!p.club?' selected':''}" onclick="assignClub(${p.id},'')">없음</button>
+          ${state.clubs.map(c => `<button class="club-assign-btn${p.club===c?' selected':''}" onclick="assignClub(${p.id},'${escHtml(c)}')">${escHtml(c)}</button>`).join('')}
+        </div>
+      </div>` : ''}
       <!-- EDIT AREA -->
       <div class="player-edit-area" id="editArea-${p.id}">
         <div class="memo-label">✏️ 이름 수정</div>
@@ -1169,11 +1366,8 @@ function escHtml(s) {
 
 function toggleEdit(id) {
   const area = document.getElementById('editArea-' + id);
-  const memoArea = document.getElementById('memoArea-' + id);
   const isOpen = area.classList.contains('open');
-  // close all edit areas
-  document.querySelectorAll('.player-edit-area.open').forEach(a => a.classList.remove('open'));
-  document.querySelectorAll('.player-memo-area.open').forEach(a => a.classList.remove('open'));
+  document.querySelectorAll('.player-edit-area.open, .player-memo-area.open, .player-club-area.open').forEach(a => a.classList.remove('open'));
   if (!isOpen) {
     area.classList.add('open');
     setTimeout(() => document.getElementById('editInput-' + id)?.focus(), 50);
@@ -1209,11 +1403,8 @@ function confirmEdit(id) {
 
 function toggleMemo(id) {
   const area = document.getElementById('memoArea-' + id);
-  const editArea = document.getElementById('editArea-' + id);
   const isOpen = area.classList.contains('open');
-  // close all
-  document.querySelectorAll('.player-edit-area.open').forEach(a => a.classList.remove('open'));
-  document.querySelectorAll('.player-memo-area.open').forEach(a => a.classList.remove('open'));
+  document.querySelectorAll('.player-edit-area.open, .player-memo-area.open, .player-club-area.open').forEach(a => a.classList.remove('open'));
   if (!isOpen) {
     area.classList.add('open');
     setTimeout(() => document.getElementById('memoInput-' + id)?.focus(), 50);
@@ -1264,7 +1455,8 @@ function importData(input) {
         state.players = state.players.map((n, i) => ({ id: i+1, name: n, memo: '' }));
         state.nextPlayerId = state.players.length + 1;
       }
-      state.players = state.players.map(p => ({ memo: '', ...p }));
+      state.players = state.players.map(p => ({ memo: '', club: '', ...p }));
+      if (!state.clubs) state.clubs = [];
       save();
       renderProfile();
       renderMatchList();
