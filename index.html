@@ -23,7 +23,7 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: var(--app-font-size, 15px); overflow: hidden; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 15px; overflow: hidden; }
 
   /* ===== FONT SIZE CONTROL ===== */
   .font-ctrl {
@@ -465,6 +465,7 @@
         <div style="font-size:11px;color:var(--text-muted);margin-top:8px;cursor:pointer;" onclick="document.getElementById('photoUpload').click()">📷 사진 변경</div>
         <div class="profile-name-big" id="profileNameBig">선수</div>
         <div class="profile-sub" id="profileSubBig">정보 없음</div>
+        <div id="profileGearBig" style="margin-top:10px;display:flex;flex-direction:column;gap:4px;align-items:center;"></div>
       </div>
       
       <button class="btn btn-secondary" onclick="toggleProfileSettings()" style="margin-bottom:12px;">
@@ -476,6 +477,10 @@
         <div class="form-group">
           <label class="form-label">이름</label>
           <input class="form-input" id="profileName" placeholder="이름 입력">
+        </div>
+        <div class="form-group">
+          <label class="form-label">소속 클럽</label>
+          <input class="form-input" id="profileClub" placeholder="클럽 이름 입력">
         </div>
         <div class="form-group">
           <label class="form-label">나이대</label>
@@ -507,6 +512,20 @@
             <option>공격형</option><option>수비형</option><option>올라운드</option>
             <option>네트플레이</option><option>베이스라인</option>
           </select>
+        </div>
+        <div style="height:1px;background:var(--border);margin:4px 0 14px;"></div>
+        <div class="card-title" style="margin-bottom:10px;">🏸 장비 정보</div>
+        <div class="form-group">
+          <label class="form-label">라켓</label>
+          <input class="form-input" id="profileRacket" placeholder="예) 요넥스 아크세이버 11 PRO">
+        </div>
+        <div class="form-group">
+          <label class="form-label">스트링</label>
+          <input class="form-input" id="profileString" placeholder="예) 니지스트링 NZ-01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">텐션</label>
+          <input class="form-input" id="profileTension" placeholder="예) 24파운드">
         </div>
         <button class="btn btn-primary" onclick="saveProfile()">저장</button>
       </div>
@@ -909,10 +928,14 @@ function uploadPhoto(input) {
 function saveProfile() {
   state.profile = {
     name: document.getElementById('profileName').value.trim() || '선수',
+    club: document.getElementById('profileClub').value.trim(),
     age: document.getElementById('profileAge').value,
     career: document.getElementById('profileCareer').value,
     hand: document.getElementById('profileHand').value,
     style: document.getElementById('profileStyle').value,
+    racket: document.getElementById('profileRacket').value.trim(),
+    string: document.getElementById('profileString').value.trim(),
+    tension: document.getElementById('profileTension').value.trim(),
     photo: state.profile.photo || '',
   };
   save();
@@ -943,13 +966,29 @@ function renderProfile() {
   }
   
   document.getElementById('profileNameBig').textContent = name;
-  const sub = [p.age, p.career, p.hand, p.style].filter(Boolean).join(' · ') || '정보 없음';
+  const sub = [p.club, p.age, p.career, p.hand, p.style].filter(Boolean).join(' · ') || '정보 없음';
   document.getElementById('profileSubBig').textContent = sub;
-  document.getElementById('profileName').value = p.name;
-  document.getElementById('profileAge').value = p.age;
-  document.getElementById('profileCareer').value = p.career;
-  document.getElementById('profileHand').value = p.hand;
-  document.getElementById('profileStyle').value = p.style;
+
+  // 장비 정보 표시
+  const gearEl = document.getElementById('profileGearBig');
+  const gearItems = [
+    p.racket ? `🏸 ${p.racket}` : '',
+    p.string ? `🎵 ${p.string}` : '',
+    p.tension ? `⚡ ${p.tension}` : '',
+  ].filter(Boolean);
+  gearEl.innerHTML = gearItems.map(g =>
+    `<span style="font-size:11px;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;">${g}</span>`
+  ).join('');
+
+  document.getElementById('profileName').value = p.name || '';
+  document.getElementById('profileClub').value = p.club || '';
+  document.getElementById('profileAge').value = p.age || '';
+  document.getElementById('profileCareer').value = p.career || '';
+  document.getElementById('profileHand').value = p.hand || '';
+  document.getElementById('profileStyle').value = p.style || '';
+  document.getElementById('profileRacket').value = p.racket || '';
+  document.getElementById('profileString').value = p.string || '';
+  document.getElementById('profileTension').value = p.tension || '';
 }
 
 // ===== MATCH =====
@@ -1105,8 +1144,11 @@ function setRankingClubFilter(club) {
 function renderRankingClubFilter() {
   const el = document.getElementById('rankingClubFilter');
   if (!el) return;
-  if (!state.clubs.length) { el.innerHTML = ''; return; }
-  const tabs = ['전체', ...state.clubs];
+  // 등록된 클럽 + 내 프로필 클럽 합산
+  const myProfileClub = state.profile.club || '';
+  const allClubs = [...new Set([...state.clubs, ...(myProfileClub ? [myProfileClub] : [])])];
+  if (!allClubs.length) { el.innerHTML = ''; return; }
+  const tabs = ['전체', ...allClubs];
   el.innerHTML = `<div class="club-filter">${tabs.map(c =>
     `<button class="club-filter-btn${state.rankingClubFilter===c?' active':''}" onclick="setRankingClubFilter('${escHtml(c)}')">${escHtml(c)}</button>`
   ).join('')}</div>`;
@@ -1115,7 +1157,7 @@ function renderRankingClubFilter() {
 function renderRanking() {
   renderRankingClubFilter();
   const myName = state.profile.name || '나';
-  const myClub = (state.players.find(p => p.name === myName) || {}).club || '';
+  const myClub = state.profile.club || '';
   const filterClub = state.rankingClubFilter;
 
   const playerMap = {};
@@ -1140,11 +1182,15 @@ function renderRanking() {
 
   if (state.matches.length > 0) playerMap[myName] = myStats;
 
-  // 클럽 필터 적용 — 나는 항상 포함
+  // 클럽 필터 적용
   let filtered = Object.entries(playerMap);
   if (filterClub !== '전체') {
     filtered = filtered.filter(([name]) => {
-      if (name === myName) return true; // 나는 항상 포함
+      // 내 클럽은 프로필에서 가져옴
+      if (name === myName) {
+        const myProfileClub = state.profile.club || '';
+        return myProfileClub === filterClub;
+      }
       const p = state.players.find(pl => pl.name === name);
       return p && p.club === filterClub;
     });
@@ -1175,16 +1221,8 @@ function renderRanking() {
     const rate = Math.round(d.w / total * 100);
     const isMe = name === myName;
     const playerClub = isMe ? myClub : (state.players.find(pl => pl.name === name) || {}).club || '';
-    // 전체 보기: 클럽 배지 표시 / 클럽 필터: 내가 다른 클럽이면 "(타 클럽)" 표시
-    let clubTag = '';
-    if (filterClub === '전체') {
-      if (playerClub) clubTag = `<span class="club-badge${isMe ? ' my-club' : ''}">${escHtml(playerClub)}</span>`;
-    } else if (isMe) {
-      if (myClub !== filterClub) {
-        const myClubLabel = myClub ? escHtml(myClub) : '클럽 없음';
-        clubTag = `<span class="club-badge my-club">${myClubLabel}</span>`;
-      }
-    }
+    const clubTag = (filterClub === '전체' && playerClub)
+      ? `<span class="club-badge${isMe ? ' my-club' : ''}">${escHtml(playerClub)}</span>` : '';
     const cls = isMe ? 'rank-me' : i === 0 ? 'rank-first' : i === 1 ? 'rank-second' : i === 2 ? 'rank-third' : '';
     const pointsStr = d.points >= 0 ? `+${d.points}` : d.points;
     const nameDisplay = isMe ? `<strong>${name}</strong>${clubTag}` : `${name}${clubTag}`;
@@ -1505,7 +1543,8 @@ function setTodayDate() {
 // ===== FONT SIZE =====
 const FONT_MIN = 12, FONT_MAX = 20, FONT_DEFAULT = 15;
 function applyFontSize(size) {
-  document.documentElement.style.setProperty('--app-font-size', size + 'px');
+  const zoom = size / 15;
+  document.getElementById('app').style.zoom = zoom;
   const label = document.getElementById('fontSizeLabel');
   if (label) label.textContent = size;
   localStorage.setItem('nijiFontSize', size);
