@@ -23,7 +23,22 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 15px; overflow: hidden; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: var(--app-font-size, 15px); overflow: hidden; }
+
+  /* ===== FONT SIZE CONTROL ===== */
+  .font-ctrl {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .font-btn {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-muted); cursor: pointer; font-family: inherit; font-weight: 700;
+    width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; transition: all .2s; line-height: 1;
+  }
+  .font-btn:active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .font-size-label {
+    font-size: 11px; color: var(--text-muted); min-width: 26px; text-align: center; font-weight: 600;
+  }
 
   /* ===== APP SHELL ===== */
   #app { display: flex; flex-direction: column; height: 100vh; max-width: 480px; margin: 0 auto; position: relative; }
@@ -428,7 +443,14 @@
 <div id="app">
   <div class="topbar">
     <span class="topbar-logo">니지스트링</span>
-    <div class="topbar-avatar" id="avatarBtn" onclick="showPage('profile')">A</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="font-ctrl">
+        <button class="font-btn" onclick="changeFontSize(-1)" title="글자 작게">A−</button>
+        <span class="font-size-label" id="fontSizeLabel">15</span>
+        <button class="font-btn" onclick="changeFontSize(1)" title="글자 크게">A+</button>
+      </div>
+      <div class="topbar-avatar" id="avatarBtn" onclick="showPage('profile')">A</div>
+    </div>
   </div>
 
   <div class="content">
@@ -1118,11 +1140,11 @@ function renderRanking() {
 
   if (state.matches.length > 0) playerMap[myName] = myStats;
 
-  // 클럽 필터 적용
+  // 클럽 필터 적용 — 나는 항상 포함
   let filtered = Object.entries(playerMap);
   if (filterClub !== '전체') {
     filtered = filtered.filter(([name]) => {
-      if (name === myName) return myClub === filterClub;
+      if (name === myName) return true; // 나는 항상 포함
       const p = state.players.find(pl => pl.name === name);
       return p && p.club === filterClub;
     });
@@ -1152,10 +1174,17 @@ function renderRanking() {
     const total = d.w + d.l;
     const rate = Math.round(d.w / total * 100);
     const isMe = name === myName;
-    // 클럽 전체 보기일 때 클럽 배지 표시
     const playerClub = isMe ? myClub : (state.players.find(pl => pl.name === name) || {}).club || '';
-    const clubTag = (filterClub === '전체' && playerClub)
-      ? `<span class="club-badge${isMe&&playerClub?' my-club':''}">${escHtml(playerClub)}</span>` : '';
+    // 전체 보기: 클럽 배지 표시 / 클럽 필터: 내가 다른 클럽이면 "(타 클럽)" 표시
+    let clubTag = '';
+    if (filterClub === '전체') {
+      if (playerClub) clubTag = `<span class="club-badge${isMe ? ' my-club' : ''}">${escHtml(playerClub)}</span>`;
+    } else if (isMe) {
+      if (myClub !== filterClub) {
+        const myClubLabel = myClub ? escHtml(myClub) : '클럽 없음';
+        clubTag = `<span class="club-badge my-club">${myClubLabel}</span>`;
+      }
+    }
     const cls = isMe ? 'rank-me' : i === 0 ? 'rank-first' : i === 1 ? 'rank-second' : i === 2 ? 'rank-third' : '';
     const pointsStr = d.points >= 0 ? `+${d.points}` : d.points;
     const nameDisplay = isMe ? `<strong>${name}</strong>${clubTag}` : `${name}${clubTag}`;
@@ -1473,7 +1502,26 @@ function setTodayDate() {
   document.getElementById('matchDate').value = today;
 }
 
+// ===== FONT SIZE =====
+const FONT_MIN = 12, FONT_MAX = 20, FONT_DEFAULT = 15;
+function applyFontSize(size) {
+  document.documentElement.style.setProperty('--app-font-size', size + 'px');
+  const label = document.getElementById('fontSizeLabel');
+  if (label) label.textContent = size;
+  localStorage.setItem('nijiFontSize', size);
+}
+function changeFontSize(delta) {
+  const cur = parseInt(localStorage.getItem('nijiFontSize') || FONT_DEFAULT);
+  const next = Math.min(FONT_MAX, Math.max(FONT_MIN, cur + delta));
+  applyFontSize(next);
+}
+function loadFontSize() {
+  const saved = parseInt(localStorage.getItem('nijiFontSize') || FONT_DEFAULT);
+  applyFontSize(saved);
+}
+
 // ===== INIT =====
+loadFontSize();
 load();
 renderProfile();
 renderMatchList();
