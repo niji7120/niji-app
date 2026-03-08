@@ -1074,7 +1074,11 @@ function load() {
       state.nextPlayerId = state.players.length + 1;
     }
     // ensure all players have memo and club field
-    state.players = state.players.map(p => ({ memo: '', club: '', ...p }));
+    state.players = state.players.map(p => ({
+      memo: '', clubs: [], ...p,
+      // 기존 단일 club 문자열 → clubs 배열로 마이그레이션
+      clubs: p.clubs ? p.clubs : (p.club ? [p.club] : []),
+    }));
     if (!state.clubs) state.clubs = [];
     if (!state.rankingClubFilter || !Array.isArray(state.rankingClubFilter)) state.rankingClubFilter = [];
     if (!state.playerClubFilter) state.playerClubFilter = '전체';
@@ -1582,8 +1586,12 @@ function addClub() {
 function deleteClub(name) {
   showConfirm(`"${name}" 클럽 삭제`, '클럽을 삭제해도 선수 기록은 유지됩니다. 소속 선수는 클럽 없음으로 변경됩니다.', '🏠', () => {
     state.clubs = state.clubs.filter(c => c !== name);
-    state.players.forEach(p => { if (p.club === name) p.club = ''; });
-    if (state.rankingClubFilter === name) state.rankingClubFilter = '전체';
+    state.players.forEach(p => {
+      if (p.clubs) p.clubs = p.clubs.filter(c => c !== name);
+      else p.clubs = [];
+    });
+    if (Array.isArray(state.rankingClubFilter))
+      state.rankingClubFilter = state.rankingClubFilter.filter(c => c !== name);
     if (state.playerClubFilter === name) state.playerClubFilter = '전체';
     save();
     renderClubTags();
@@ -1626,13 +1634,32 @@ function toggleClubAssign(id) {
   if (area && !area.classList.contains('open')) area.classList.add('open');
 }
 
-function assignClub(playerId, club) {
+function togglePlayerClub(playerId, club) {
   const player = state.players.find(p => p.id === playerId);
   if (!player) return;
-  player.club = club;
+  if (!player.clubs) player.clubs = [];
+  const idx = player.clubs.indexOf(club);
+  if (idx === -1) player.clubs.push(club);
+  else player.clubs.splice(idx, 1);
   save();
-  renderPlayers();
-  showToast(club ? `🏠 ${club} 배정 완료!` : '클럽 해제 완료');
+  // 배정 버튼만 갱신
+  const area = document.getElementById('clubArea-' + playerId);
+  if (area) {
+    area.querySelectorAll('.club-assign-btn').forEach(btn => {
+      const c = btn.dataset.club;
+      if (c === '') btn.classList.toggle('selected', player.clubs.length === 0);
+      else btn.classList.toggle('selected', player.clubs.includes(c));
+    });
+  }
+  // 이름 옆 뱃지 갱신
+  const nameEl = document.querySelector(`#playerItem-${playerId} .player-name`);
+  if (nameEl) {
+    const badges = player.clubs.length
+      ? player.clubs.map(c => `<span class="club-badge">${escHtml(c)}</span>`).join('')
+      : (state.clubs.length ? `<span style="font-size:10px;color:var(--text-muted);"> · 클럽 없음</span>` : '');
+    nameEl.innerHTML = escHtml(player.name) + badges;
+  }
+  showToast(club ? `🏠 ${club} ${player.clubs.includes(club) ? '추가' : '해제'}` : '클럽 전체 해제');
 }
 
 function renderStreak() {
@@ -1823,7 +1850,7 @@ function addPlayer() {
   const name = document.getElementById('newPlayerName').value.trim();
   if (!name) { showToast('⚠️ 이름을 입력하세요'); return; }
   if (state.players.find(p => p.name === name)) { showToast('⚠️ 이미 등록된 선수입니다'); return; }
-  state.players.push({ id: state.nextPlayerId++, name, memo: '', club: '' });
+  state.players.push({ id: state.nextPlayerId++, name, memo: '', clubs: [] });
   save();
   document.getElementById('newPlayerName').value = '';
   renderPlayers();
@@ -1839,9 +1866,9 @@ function renderPlayers() {
   let filtered = state.players;
   if (state.playerClubFilter !== '전체') {
     if (state.playerClubFilter === '클럽 없음') {
-      filtered = state.players.filter(p => !p.club);
+      filtered = state.players.filter(p => !p.clubs || p.clubs.length === 0);
     } else {
-      filtered = state.players.filter(p => p.club === state.playerClubFilter);
+      filtered = state.players.filter(p => p.clubs && p.clubs.includes(state.playerClubFilter));
     }
   }
 
@@ -1852,9 +1879,11 @@ function renderPlayers() {
   el.innerHTML = filtered.map(p => {
     const initial = p.name.charAt(0);
     const memoPreview = p.memo ? `<div class="player-memo-preview">📝 메모: ${p.memo}</div>` : '';
-    const clubDisplay = p.club
-      ? `<span class="club-badge">${escHtml(p.club)}</span>`
+    const playerClubs = p.clubs || [];
+    const clubDisplay = playerClubs.length
+      ? playerClubs.map(c => `<span class="club-badge">${escHtml(c)}</span>`).join('')
       : (state.clubs.length ? `<span style="font-size:10px;color:var(--text-muted);"> · 클럽 없음</span>` : '');
+
     return `<li class="player-item" id="playerItem-${p.id}">
       <div class="player-item-main">
         <div class="player-avatar-sm" onclick="showPlayerDetail(${p.id})" style="cursor:pointer;">${initial}</div>
@@ -1878,12 +1907,12 @@ function renderPlayers() {
           </button>
         </div>
       </div>
-      <!-- CLUB ASSIGN AREA -->
+      <!-- CLUB ASSIGN AREA (복수 선택) -->
       ${state.clubs.length ? `<div class="player-club-area" id="clubArea-${p.id}">
-        <div class="memo-label">🏠 클럽 배정</div>
+        <div class="memo-label">🏠 클럽 배정 (복수 선택 가능)</div>
         <div class="club-assign-btns">
-          <button class="club-assign-btn none-btn${!p.club?' selected':''}" onclick="assignClub(${p.id},'')">없음</button>
-          ${state.clubs.map(c => `<button class="club-assign-btn${p.club===c?' selected':''}" onclick="assignClub(${p.id},'${escHtml(c)}')">${escHtml(c)}</button>`).join('')}
+          <button class="club-assign-btn none-btn${playerClubs.length===0?' selected':''}" data-club="" onclick="clearPlayerClubs(${p.id})">없음</button>
+          ${state.clubs.map(c => `<button class="club-assign-btn${playerClubs.includes(c)?' selected':''}" data-club="${escHtml(c)}" onclick="togglePlayerClub(${p.id},'${escHtml(c)}')">${escHtml(c)}</button>`).join('')}
         </div>
       </div>` : ''}
       <!-- EDIT AREA -->
@@ -1903,6 +1932,22 @@ function renderPlayers() {
       </div>
     </li>`;
   }).join('');
+}
+
+function clearPlayerClubs(playerId) {
+  const player = state.players.find(p => p.id === playerId);
+  if (!player) return;
+  player.clubs = [];
+  save();
+  const area = document.getElementById('clubArea-' + playerId);
+  if (area) {
+    area.querySelectorAll('.club-assign-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.club === '');
+    });
+  }
+  const nameEl = document.querySelector(`#playerItem-${playerId} .player-name`);
+  if (nameEl) nameEl.innerHTML = escHtml(player.name) + (state.clubs.length ? `<span style="font-size:10px;color:var(--text-muted);"> · 클럽 없음</span>` : '');
+  showToast('클럽 전체 해제');
 }
 
 function showPlayerDetail(playerId) {
