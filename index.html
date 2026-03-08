@@ -166,30 +166,30 @@
   /* ===== MATCH ITEM ===== */
   .match-item {
     background: var(--surface2); border-radius: 12px; padding: 12px 14px;
-    margin-bottom: 8px; border: 1px solid var(--border); position: relative;
+    margin-bottom: 8px; border: 1px solid var(--border);
   }
-  .match-item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding-right: 30px; }
-  .match-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+  .match-item-top {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 8px;
+  }
+  .match-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; }
   .badge-win { background: rgba(74,222,128,.15); color: var(--success); border: 1px solid rgba(74,222,128,.3); }
   .badge-lose { background: rgba(248,113,113,.15); color: var(--danger); border: 1px solid rgba(248,113,113,.3); }
-  .match-date { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .match-date { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; flex: 1; }
+  .match-item-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
   .match-item-main { display: flex; align-items: center; justify-content: center; gap: 12px; }
   .match-team { flex: 1; text-align: center; font-size: 13px; font-weight: 600; }
   .match-score-big { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 4px; }
   .match-score-win { color: var(--success); }
   .match-score-lose { color: var(--danger); }
   .match-delete-btn {
-    position: absolute; top: 10px; right: 10px;
     background: none; border: none; color: var(--text-muted); cursor: pointer;
-    padding: 4px; border-radius: 6px; font-size: 14px; display: flex;
-    transition: color .2s;
+    padding: 5px; border-radius: 6px; display: flex; transition: color .2s;
   }
   .match-delete-btn:hover { color: var(--danger); }
   .match-edit-btn {
-    position: absolute; top: 10px; right: 36px;
     background: none; border: none; color: var(--text-muted); cursor: pointer;
-    padding: 4px; border-radius: 6px; font-size: 14px; display: flex;
-    transition: color .2s;
+    padding: 5px; border-radius: 6px; display: flex; transition: color .2s;
   }
   .match-edit-btn:hover { color: var(--accent); }
   .match-edit-mode-banner {
@@ -1052,7 +1052,7 @@ let state = {
   nextMatchId: 1,
   nextPlayerId: 1,
   sportType: 'badminton',
-  rankingClubFilter: '전체',
+  rankingClubFilter: [],
   playerClubFilter: '전체',
   lastStringDate: '',
   stringInterval: 3,
@@ -1076,7 +1076,7 @@ function load() {
     // ensure all players have memo and club field
     state.players = state.players.map(p => ({ memo: '', club: '', ...p }));
     if (!state.clubs) state.clubs = [];
-    if (!state.rankingClubFilter) state.rankingClubFilter = '전체';
+    if (!state.rankingClubFilter || !Array.isArray(state.rankingClubFilter)) state.rankingClubFilter = [];
     if (!state.playerClubFilter) state.playerClubFilter = '전체';
     if (!state.nextMatchId) state.nextMatchId = state.matches.length + 1;
     if (!state.nextPlayerId) state.nextPlayerId = state.players.length + 1;
@@ -1307,17 +1307,19 @@ function renderMatchList() {
     const opps = [m.opponent, m.opponent2].filter(Boolean).join(', ');
     const fmtLabel = m.format === 'doubles' ? '복식' : '단식';
     return `<div class="match-item">
-      <button class="match-edit-btn" onclick="editMatch(${m.id})" title="수정">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      </button>
-      <button class="match-delete-btn" onclick="deleteMatch(${m.id})" title="삭제">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-      </button>
       <div class="match-item-top">
         <span class="match-badge ${win ? 'badge-win' : 'badge-lose'}">${win ? '승리' : '패배'}</span>
         <div class="match-date">
           <span>${m.date}</span>
           <span class="format-badge">${fmtLabel}</span>
+        </div>
+        <div class="match-item-actions">
+          <button class="match-edit-btn" onclick="editMatch(${m.id})" title="수정">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="match-delete-btn" onclick="deleteMatch(${m.id})" title="삭제">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
         </div>
       </div>
       <div class="match-item-main">
@@ -1427,29 +1429,34 @@ function renderStats() {
   renderMonthlyGraph();
 }
 
-function setRankingClubFilter(club) {
-  state.rankingClubFilter = club;
+function toggleRankingClubFilter(club) {
+  const idx = state.rankingClubFilter.indexOf(club);
+  if (idx === -1) state.rankingClubFilter.push(club);
+  else state.rankingClubFilter.splice(idx, 1);
+  save();
   renderRanking();
 }
 
 function renderRankingClubFilter() {
   const el = document.getElementById('rankingClubFilter');
   if (!el) return;
-  // 등록된 클럽 + 내 프로필 클럽 합산
   const myProfileClub = state.profile.club || '';
   const allClubs = [...new Set([...state.clubs, ...(myProfileClub ? [myProfileClub] : [])])];
   if (!allClubs.length) { el.innerHTML = ''; return; }
-  const tabs = ['전체', ...allClubs];
-  el.innerHTML = `<div class="club-filter">${tabs.map(c =>
-    `<button class="club-filter-btn${state.rankingClubFilter===c?' active':''}" onclick="setRankingClubFilter('${escHtml(c)}')">${escHtml(c)}</button>`
-  ).join('')}</div>`;
+  const selected = state.rankingClubFilter;
+  el.innerHTML = `<div class="club-filter">${allClubs.map(c =>
+    `<button class="club-filter-btn${selected.includes(c) ? ' active' : ''}" onclick="toggleRankingClubFilter('${escHtml(c)}')">${escHtml(c)}</button>`
+  ).join('')}</div>
+  <div style="font-size:10px;color:var(--text-muted);margin:4px 0 8px;padding-left:2px;">
+    ${selected.length ? `선택: ${selected.map(escHtml).join(', ')}` : '전체 순위 표시 중 (클럽 탭을 눌러 필터)'}
+  </div>`;
 }
 
 function renderRanking() {
   renderRankingClubFilter();
   const myName = state.profile.name || '나';
   const myClub = state.profile.club || '';
-  const filterClub = state.rankingClubFilter;
+  const selectedClubs = state.rankingClubFilter; // 배열
 
   const playerMap = {};
   let myStats = { w: 0, l: 0, points: 0 };
@@ -1473,17 +1480,13 @@ function renderRanking() {
 
   if (state.matches.length > 0) playerMap[myName] = myStats;
 
-  // 클럽 필터 적용
+  // 클럽 필터 적용 (선택 없으면 전체)
   let filtered = Object.entries(playerMap);
-  if (filterClub !== '전체') {
+  if (selectedClubs.length > 0) {
     filtered = filtered.filter(([name]) => {
-      // 내 클럽은 프로필에서 가져옴
-      if (name === myName) {
-        const myProfileClub = state.profile.club || '';
-        return myProfileClub === filterClub;
-      }
+      if (name === myName) return true; // 나는 항상 포함
       const p = state.players.find(pl => pl.name === name);
-      return p && p.club === filterClub;
+      return p && selectedClubs.includes(p.club);
     });
   }
 
@@ -1502,17 +1505,18 @@ function renderRanking() {
     return;
   }
 
-  // 헤더 레이블
-  const titleLabel = filterClub === '전체'
+  const titleLabel = selectedClubs.length === 0
     ? '종합 순위'
-    : `${filterClub} 클럽 순위`;
+    : selectedClubs.length === 1
+      ? `${selectedClubs[0]} 순위`
+      : `${selectedClubs.join(' + ')} 순위`;
 
   const rows = sorted.map(([name, d], i) => {
     const total = d.w + d.l;
     const rate = Math.round(d.w / total * 100);
     const isMe = name === myName;
     const playerClub = isMe ? myClub : (state.players.find(pl => pl.name === name) || {}).club || '';
-    const clubTag = (filterClub === '전체' && playerClub)
+    const clubTag = playerClub
       ? `<span class="club-badge${isMe ? ' my-club' : ''}">${escHtml(playerClub)}</span>` : '';
     const cls = isMe ? 'rank-me' : i === 0 ? 'rank-first' : i === 1 ? 'rank-second' : i === 2 ? 'rank-third' : '';
     const pointsStr = d.points >= 0 ? `+${d.points}` : d.points;
