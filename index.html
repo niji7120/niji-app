@@ -596,6 +596,7 @@
     font-size: 30px; font-weight: 900; color: #fff;
     text-shadow: 0 2px 20px rgba(0,0,0,.9); line-height: 1.1;
     pointer-events: none;
+    white-space: normal; word-break: keep-all;
   }
   .profile-overlay-name span {
     display: block; font-size: 11px; font-weight: 500;
@@ -604,7 +605,7 @@
   }
   .profile-overlay-cards {
     position: relative; z-index: 2;
-    padding: 0 10px 16px;
+    padding: 0 8px 16px;
     cursor: default;
   }
 
@@ -614,12 +615,12 @@
     text-transform: uppercase; color: rgba(255,255,255,.3);
     padding: 8px 4px 5px;
   }
-  .profile-card-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; width: 100%; margin-left: auto; margin-right: 0; }
+  .profile-card-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; width: 100%; }
   .profile-card {
     background: rgba(15,15,25,.80); border: 1px solid rgba(255,255,255,.09);
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     border-radius: 11px; padding: 9px 10px;
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: flex-start; gap: 8px;
     cursor: pointer; transition: border-color .15s, background .15s;
   }
   .profile-card:active { border-color: var(--accent); background: rgba(124,106,247,.2); }
@@ -638,7 +639,7 @@
   }
   .profile-card-val {
     font-size: 12px; font-weight: 700; color: #fff;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    white-space: normal; word-break: keep-all; overflow-wrap: break-word;
   }
   .profile-card-val.unset { color: rgba(255,255,255,.25); font-size: 11px; font-weight: 400; }
 
@@ -719,6 +720,7 @@
   .pf-input {
     width: 100%; background: none; border: none; outline: none;
     color: #fff; font-family: inherit; font-size: 12px; font-weight: 700; padding: 0;
+    white-space: normal; word-break: keep-all; overflow-wrap: break-word;
   }
   .pf-input::placeholder { color: rgba(255,255,255,.25); font-weight: 400; font-size: 11px; }
   .pf-select {
