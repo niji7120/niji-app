@@ -548,188 +548,106 @@
   .stringing-add-row .form-input { flex: 1; min-width: 0; font-size: 13px; padding: 8px 12px; }
   .stringing-add-row .btn { white-space: nowrap; font-size: 12px; padding: 0 14px; }
 
-  /* ===== PROFILE DESIGN — 전체화면 사진 + 하단 카드 ===== */
+  /* ===== PROFILE DESIGN ===== */
   .profile-page { padding: 0 !important; }
 
-  .profile-fullbg {
-    position: relative; width: 100%;
-    min-height: calc(100dvh - 56px - 70px); /* topbar + nav 제외 */
-    display: flex; flex-direction: column; justify-content: flex-end;
-    background: linear-gradient(160deg, #0d1f0d 0%, #0a1520 50%, #100a20 100%);
-    cursor: pointer;
+  .pf-wrap {
+    width: 100%;
+    background: #0a0a12;
+    display: flex; flex-direction: column;
   }
-  .profile-fullbg-img {
-    position: absolute; top: 0; left: 0;
+
+  /* 상단 사진 영역 */
+  .pf-bg {
+    position: relative;
+    width: 100%; height: 52vw; min-height: 220px; max-height: 320px;
+    overflow: hidden; cursor: pointer; flex-shrink: 0;
+    background: linear-gradient(135deg, #1a0a2e, #0a1520);
+  }
+  .pf-bg-img {
     width: 100%; height: 100%;
     object-fit: cover; object-position: center top;
-    opacity: .75; z-index: 0; pointer-events: none;
   }
-  .profile-fullbg-initial {
-    position: absolute; top: 0; left: 0;
-    width: 100%; height: 100%;
+  .pf-bg-initial {
+    position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 130px; font-weight: 900; z-index: 0; pointer-events: none;
+    font-size: 110px; font-weight: 900;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
-  .profile-fullbg-gradient {
-    position: absolute; top: 0; left: 0;
-    width: 100%; height: 100%;
+  .pf-bg-dim {
+    position: absolute; inset: 0;
     background: linear-gradient(to bottom,
-      rgba(0,0,0,.0) 0%,
-      rgba(0,0,0,.0) 40%,
-      rgba(10,10,16,.6) 65%,
-      rgba(10,10,16,.97) 85%,
-      rgba(10,10,16,1) 100%);
-    z-index: 1; pointer-events: none;
+      rgba(0,0,0,0) 50%,
+      rgba(8,8,18,.9) 100%);
   }
-  .profile-hero-upload-hint {
-    position: absolute; top: 12px; right: 12px; z-index: 10;
-    background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.18);
-    border-radius: 20px; padding: 5px 12px;
-    font-size: 11px; color: rgba(255,255,255,.75); backdrop-filter: blur(6px);
-    pointer-events: none;
-  }
-  .profile-overlay-name {
-    position: relative; z-index: 2;
-    padding: 0 14px 10px;
-    font-size: 30px; font-weight: 900; color: #fff;
-    text-shadow: 0 2px 20px rgba(0,0,0,.9); line-height: 1.1;
-    pointer-events: none;
-    white-space: normal; word-break: keep-all;
-  }
-  .profile-overlay-name span {
-    display: block; font-size: 11px; font-weight: 500;
-    color: rgba(255,255,255,.5); margin-bottom: 5px;
-    letter-spacing: 1.5px; text-transform: uppercase;
-  }
-  .profile-overlay-cards {
-    position: relative; z-index: 2;
-    padding: 0 8px 16px;
-    cursor: default;
+  .pf-camera-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.2);
+    border-radius: 20px; padding: 4px 10px;
+    font-size: 12px; backdrop-filter: blur(6px);
+    pointer-events: none; color: #fff;
   }
 
-  /* 인포 카드 그리드 */
-  .pf-section-title {
-    font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
-    text-transform: uppercase; color: rgba(255,255,255,.3);
-    padding: 8px 4px 5px;
+  /* 하단 콘텐츠 */
+  .pf-content {
+    background: #0a0a12;
+    padding: 14px 12px 20px;
+    flex: 1;
   }
-  .profile-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
-  .profile-card {
-    background: rgba(15,15,25,.80); border: 1px solid rgba(255,255,255,.09);
-    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-    border-radius: 11px; padding: 9px 10px;
-    display: flex; align-items: flex-start; gap: 8px;
-    cursor: pointer; transition: border-color .15s, background .15s;
-  }
-  .profile-card:active { border-color: var(--accent); background: rgba(124,106,247,.2); }
-  .profile-card.full { grid-column: 1 / -1; }
-  .profile-card.span2 { grid-column: span 2; }
-  .profile-card-icon {
-    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(124,106,247,.2);
-  }
-  .profile-card-icon svg { width: 13px; height: 13px; }
-  .profile-card-body { min-width: 0; flex: 1; }
-  .profile-card-lbl {
-    font-size: 8px; color: rgba(255,255,255,.3); font-weight: 700;
-    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px;
-  }
-  .profile-card-val {
-    font-size: 12px; font-weight: 700; color: #fff;
-    white-space: normal; word-break: keep-all; overflow-wrap: break-word;
-  }
-  .profile-card-val.unset { color: rgba(255,255,255,.25); font-size: 11px; font-weight: 400; }
 
-  /* ===== PLAYER DETAIL PAGE ===== */
-  .player-detail-back {
-    display: flex; align-items: center; gap: 8px;
-    padding: 14px 16px 10px; cursor: pointer;
-    color: var(--accent); font-size: 14px; font-weight: 600;
+  /* 이름 */
+  .pf-name-row { margin-bottom: 12px; }
+  .pf-club-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--accent);
+    display: block; margin-bottom: 3px;
   }
-  .player-detail-hero {
-    display: flex; align-items: center; gap: 16px;
-    padding: 10px 16px 20px;
+  .pf-name-text {
+    font-size: 28px; font-weight: 900; color: #fff;
+    line-height: 1.1;
   }
-  .player-detail-avatar {
-    width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 30px; font-weight: 900; color: #fff;
-  }
-  .player-detail-name { font-size: 26px; font-weight: 900; }
-  .player-detail-club { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
 
-  .player-stat-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-    padding: 0 16px 20px;
+  /* 정보 그리드 */
+  .pf-stat-row {
+    display: flex; flex-direction: column; gap: 7px;
   }
-  .player-stat-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 14px; padding: 16px 10px; text-align: center;
-  }
-  .player-stat-box.win  { border-color: rgba(74,222,128,.4);  background: rgba(74,222,128,.07); }
-  .player-stat-box.lose { border-color: rgba(248,113,113,.4); background: rgba(248,113,113,.07); }
-  .player-stat-val {
-    font-size: 28px; font-weight: 900; color: var(--text); line-height: 1;
-  }
-  .player-stat-val.win  { color: var(--success); }
-  .player-stat-val.lose { color: var(--danger); }
-  .player-stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 5px; font-weight: 600; }
+  .pf-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
 
-  .player-vs-card {
-    margin: 0 16px 20px;
-    background: linear-gradient(135deg, rgba(124,106,247,.15), rgba(247,106,200,.1));
-    border: 1px solid rgba(124,106,247,.3); border-radius: 16px; padding: 18px 20px;
+  /* 카드 */
+  .pf-item {
+    background: #141420; border: 1px solid #222235;
+    border-radius: 12px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 12px;
   }
-  .player-vs-title { font-size: 12px; color: var(--text-muted); font-weight: 700; letter-spacing: 1px; margin-bottom: 12px; }
-  .player-vs-row { display: flex; align-items: center; gap: 0; }
-  .player-vs-num {
-    font-size: 40px; font-weight: 900; line-height: 1;
+  .pf-item.full { grid-column: 1 / -1; }
+  .pf-item-icon {
+    color: rgba(255,255,255,.35); flex-shrink: 0;
   }
-  .player-vs-num.win  { color: var(--success); }
-  .player-vs-num.lose { color: var(--danger); }
-  .player-vs-sep { font-size: 22px; color: var(--text-muted); margin: 0 10px; font-weight: 300; }
-  .player-vs-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
-  .player-rate-bar-wrap { padding: 0 16px 24px; }
-  .player-rate-bar-lbl { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
-  .player-rate-bar-bg { height: 10px; background: var(--surface2); border-radius: 10px; overflow: hidden; }
-  .player-rate-bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .5s; }
-
-  .player-match-history { padding: 0 16px 24px; }
-  .player-match-history-title { font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; letter-spacing: .5px; }
-  .player-match-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; background: var(--surface); border-radius: 12px; margin-bottom: 6px;
+  .pf-item-body { flex: 1; min-width: 0; }
+  .pf-item-lbl {
+    font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: rgba(255,255,255,.4);
+    margin-bottom: 3px;
   }
-  .player-match-badge {
-    width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 900;
+  .pf-item-val {
+    font-size: 14px; font-weight: 700; color: #fff;
+    word-break: keep-all; overflow-wrap: break-word; line-height: 1.3;
   }
-  .player-match-badge.W { background: rgba(74,222,128,.15); color: var(--success); }
-  .player-match-badge.L { background: rgba(248,113,113,.15); color: var(--danger); }
-  .player-match-info { flex: 1; min-width: 0; }
-  .player-match-date { font-size: 11px; color: var(--text-muted); }
-  .player-match-score { font-size: 13px; font-weight: 700; }
-
-  /* 인라인 편집 */
-  .pf-input {
+  .pf-item-val.unset { color: rgba(255,255,255,.25); font-size: 12px; font-weight: 400; font-style: italic; }
+  .pf-item-input {
     width: 100%; background: none; border: none; outline: none;
-    color: #fff; font-family: inherit; font-size: 12px; font-weight: 700; padding: 0;
-    white-space: normal; word-break: keep-all; overflow-wrap: break-word;
+    color: #fff; font-family: inherit; font-size: 14px; font-weight: 700; padding: 0;
+    word-break: keep-all;
   }
-  .pf-input::placeholder { color: rgba(255,255,255,.25); font-weight: 400; font-size: 11px; }
-  .pf-select {
+  .pf-item-input::placeholder { color: rgba(255,255,255,.22); font-weight: 400; font-size: 12px; font-style: italic; }
+  .pf-item-select {
     width: 100%; background: none; border: none; outline: none;
-    color: #fff; font-family: inherit; font-size: 12px; font-weight: 700;
+    color: #fff; font-family: inherit; font-size: 14px; font-weight: 700;
     padding: 0; -webkit-appearance: none; cursor: pointer;
   }
-  .pf-select.unset { color: rgba(255,255,255,.25); font-size: 11px; font-weight: 400; }
-  .pf-select option { background: #1a1a22; }
+  .pf-item-select.unset { color: rgba(255,255,255,.25); font-size: 12px; font-weight: 400; font-style: italic; }
+  .pf-item-select option { background: #1a1a22; }
 </style>
 </head>
 <body>
@@ -743,21 +661,24 @@
     <!-- ===== PROFILE PAGE ===== -->
     <div class="page active profile-page" id="page-profile">
 
-      <!-- 전체화면 사진 배경 -->
-      <div class="profile-fullbg" id="profileHeroNew" onclick="document.getElementById('photoUpload').click()">
-        <img id="avatarImage" class="profile-fullbg-img" style="display:none;">
-        <div class="profile-fullbg-initial" id="avatarInitial">A</div>
-        <div class="profile-fullbg-gradient"></div>
-        <div class="profile-hero-upload-hint">📷 사진 변경</div>
-
-        <!-- 이름/클럽 오버레이 -->
-        <div class="profile-overlay-name" id="profileNameBig">
-          <span id="profileClubBig"></span>선수
+      <!-- 전체화면 프로필 -->
+      <div class="pf-wrap">
+        <!-- 배경 사진 -->
+        <div class="pf-bg" onclick="document.getElementById('photoUpload').click()">
+          <img id="avatarImage" class="pf-bg-img" style="display:none;">
+          <div class="pf-bg-initial" id="avatarInitial">A</div>
+          <div class="pf-bg-dim"></div>
+          <div class="pf-camera-btn">📷</div>
         </div>
 
-        <!-- 카드 오버레이 -->
-        <div class="profile-overlay-cards" onclick="event.stopPropagation()">
-          <div class="profile-card-grid" id="profileInfoGrid"></div>
+        <!-- 하단 오버레이 콘텐츠 -->
+        <div class="pf-content" onclick="event.stopPropagation()">
+          <div class="pf-name-row" id="profileNameBig">
+            <span class="pf-club-tag" id="profileClubBig"></span>
+            <span class="pf-name-text">선수</span>
+          </div>
+          <div class="pf-divider"></div>
+          <div class="pf-stat-row" id="profileInfoGrid"></div>
         </div>
       </div>
       <input type="file" id="photoUpload" accept="image/*" style="display:none" onchange="uploadPhoto(this)">
@@ -1215,10 +1136,16 @@ function renderProfile() {
   const name = p.name || '선수';
   const initial = name.charAt(0).toUpperCase();
 
+  // 상단 아바타 버튼
   document.getElementById('avatarBtn').textContent = initial;
-  document.getElementById('profileNameBig').innerHTML =
-    `<span>${p.club ? p.club.toUpperCase() : 'PROFILE'}</span>${escHtml(name)}`;
 
+  // 이름 + 클럽 오버레이
+  const nameRow = document.getElementById('profileNameBig');
+  nameRow.innerHTML = `
+    <span class="pf-club-tag">${p.club ? escHtml(p.club.toUpperCase()) : ''}</span>
+    <span class="pf-name-text">${escHtml(name)}</span>`;
+
+  // 배경 사진 / 이니셜
   const avatarInitial = document.getElementById('avatarInitial');
   const avatarImage   = document.getElementById('avatarImage');
   if (p.photo) {
@@ -1229,29 +1156,67 @@ function renderProfile() {
     avatarInitial.style.display = 'flex'; avatarImage.style.display = 'none';
   }
 
+  // 정보 항목 렌더링
   const grid = document.getElementById('profileInfoGrid');
 
-  // 단일 그리드로 렌더링
-  let html = '<div class="profile-card-grid">';
-  PROFILE_FIELDS.forEach(f => {
-    const val = p[f.key] || '';
-    const inputEl = f.type === 'select'
-      ? `<select class="pf-select${val?'':' unset'}" onchange="this.classList.toggle('unset',!this.value);saveProfileField('${f.key}',this.value)">
-           <option value="">미설정</option>
-           ${f.opts.map(o=>`<option${val===o?' selected':''}>${o}</option>`).join('')}
-         </select>`
-      : `<input class="pf-input" value="${escHtml(val)}" placeholder="${f.ph||''}"
-           onblur="saveProfileField('${f.key}',this.value)"
-           onkeydown="if(event.key==='Enter')this.blur()">`;
-    html += `<div class="profile-card${f.full?' full':''}">
-      <div class="profile-card-icon" style="color:#7c6af7;">${f.icon}</div>
-      <div class="profile-card-body">
-        <div class="profile-card-lbl">${f.lbl}</div>
-        ${inputEl}
-      </div>
-    </div>`;
+  // 필드 그룹: [age,hand], [career,style], [racket], [string,tension]
+  const groups = [
+    ['age','hand'],
+    ['career','style'],
+    ['racket'],
+    ['string','tension'],
+  ];
+  const fieldMap = {};
+  PROFILE_FIELDS.forEach(f => fieldMap[f.key] = f);
+
+  let html = '';
+  groups.forEach(keys => {
+    if (keys.length === 1) {
+      // 전체 너비
+      const f = fieldMap[keys[0]];
+      if (!f) return;
+      const val = p[f.key] || '';
+      const inputEl = f.type === 'select'
+        ? `<select class="pf-item-select${val?'':' unset'}" onchange="this.classList.toggle('unset',!this.value);saveProfileField('${f.key}',this.value)">
+             <option value="">미설정</option>
+             ${f.opts.map(o=>`<option${val===o?' selected':''}>${o}</option>`).join('')}
+           </select>`
+        : `<input class="pf-item-input" value="${escHtml(val)}" placeholder="${f.ph||''}"
+             onblur="saveProfileField('${f.key}',this.value)"
+             onkeydown="if(event.key==='Enter')this.blur()">`;
+      html += `<div class="pf-item">
+        <div class="pf-item-icon">${f.icon}</div>
+        <div class="pf-item-body">
+          <div class="pf-item-lbl">[${f.lbl}]</div>
+          ${inputEl}
+        </div>
+      </div>`;
+    } else {
+      // 2칸 행
+      html += '<div class="pf-row-2">';
+      keys.forEach(key => {
+        const f = fieldMap[key];
+        if (!f) return;
+        const val = p[f.key] || '';
+        const inputEl = f.type === 'select'
+          ? `<select class="pf-item-select${val?'':' unset'}" onchange="this.classList.toggle('unset',!this.value);saveProfileField('${f.key}',this.value)">
+               <option value="">미설정</option>
+               ${f.opts.map(o=>`<option${val===o?' selected':''}>${o}</option>`).join('')}
+             </select>`
+          : `<input class="pf-item-input" value="${escHtml(val)}" placeholder="${f.ph||''}"
+               onblur="saveProfileField('${f.key}',this.value)"
+               onkeydown="if(event.key==='Enter')this.blur()">`;
+        html += `<div class="pf-item">
+          <div class="pf-item-icon">${f.icon}</div>
+          <div class="pf-item-body">
+            <div class="pf-item-lbl">[${f.lbl}]</div>
+            ${inputEl}
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+    }
   });
-  html += '</div>';
   grid.innerHTML = html;
 }
 
@@ -1261,8 +1226,10 @@ function saveProfileField(key, value) {
   state.profile.photo = state.profile.photo || '';
   save();
   const p = state.profile; const name = p.name || '선수';
-  document.getElementById('profileNameBig').innerHTML =
-    `<span>${p.club ? p.club.toUpperCase() : 'PROFILE'}</span>${escHtml(name)}`;
+  const nameRow = document.getElementById('profileNameBig');
+  if (nameRow) nameRow.innerHTML = `
+    <span class="pf-club-tag">${p.club ? escHtml(p.club.toUpperCase()) : ''}</span>
+    <span class="pf-name-text">${escHtml(name)}</span>`;
   document.getElementById('avatarBtn').textContent = name.charAt(0).toUpperCase();
   if (!p.photo) document.getElementById('avatarInitial').textContent = name.charAt(0).toUpperCase();
 }
