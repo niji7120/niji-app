@@ -548,24 +548,27 @@
   .stringing-add-row .form-input { flex: 1; min-width: 0; font-size: 13px; padding: 8px 12px; }
   .stringing-add-row .btn { white-space: nowrap; font-size: 12px; padding: 0 14px; }
 
-  /* ===== PROFILE DESIGN — 전체화면 사진 + 오버레이 카드 ===== */
+  /* ===== PROFILE DESIGN — 전체화면 사진 + 하단 카드 ===== */
   .profile-page { padding: 0 !important; }
 
   .profile-fullbg {
     position: relative; width: 100%;
+    min-height: calc(100dvh - 56px - 70px); /* topbar + nav 제외 */
+    display: flex; flex-direction: column; justify-content: flex-end;
     background: linear-gradient(160deg, #0d1f0d 0%, #0a1520 50%, #100a20 100%);
+    cursor: pointer;
   }
   .profile-fullbg-img {
     position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
     object-fit: cover; object-position: center top;
-    opacity: .72; z-index: 0; pointer-events: none;
+    opacity: .75; z-index: 0; pointer-events: none;
   }
   .profile-fullbg-initial {
     position: absolute; top: 0; left: 0;
-    width: 100%; height: 260px;
+    width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 120px; font-weight: 900; z-index: 0; pointer-events: none;
+    font-size: 130px; font-weight: 900; z-index: 0; pointer-events: none;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
@@ -574,9 +577,10 @@
     width: 100%; height: 100%;
     background: linear-gradient(to bottom,
       rgba(0,0,0,.0) 0%,
-      rgba(0,0,0,.05) 30%,
-      rgba(10,10,16,.7) 60%,
-      rgba(10,10,16,1) 85%);
+      rgba(0,0,0,.0) 40%,
+      rgba(10,10,16,.6) 65%,
+      rgba(10,10,16,.97) 85%,
+      rgba(10,10,16,1) 100%);
     z-index: 1; pointer-events: none;
   }
   .profile-hero-upload-hint {
@@ -588,20 +592,19 @@
   }
   .profile-overlay-name {
     position: relative; z-index: 2;
-    padding: 200px 18px 14px;
-    font-size: 34px; font-weight: 900; color: #fff;
+    padding: 0 14px 10px;
+    font-size: 30px; font-weight: 900; color: #fff;
     text-shadow: 0 2px 20px rgba(0,0,0,.9); line-height: 1.1;
     pointer-events: none;
   }
   .profile-overlay-name span {
-    display: block; font-size: 12px; font-weight: 500;
-    color: rgba(255,255,255,.5); margin-bottom: 6px;
+    display: block; font-size: 11px; font-weight: 500;
+    color: rgba(255,255,255,.5); margin-bottom: 5px;
     letter-spacing: 1.5px; text-transform: uppercase;
   }
   .profile-overlay-cards {
     position: relative; z-index: 2;
-    padding: 0 0 24px 0;
-    display: flex; justify-content: flex-end;
+    padding: 0 10px 16px;
     cursor: default;
   }
 
@@ -611,7 +614,7 @@
     text-transform: uppercase; color: rgba(255,255,255,.3);
     padding: 8px 4px 5px;
   }
-  .profile-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 72%; margin-left: auto; margin-right: 0; }
+  .profile-card-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; width: 100%; margin-left: auto; margin-right: 0; }
   .profile-card {
     background: rgba(15,15,25,.80); border: 1px solid rgba(255,255,255,.09);
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
@@ -621,6 +624,7 @@
   }
   .profile-card:active { border-color: var(--accent); background: rgba(124,106,247,.2); }
   .profile-card.full { grid-column: 1 / -1; }
+  .profile-card.span2 { grid-column: span 2; }
   .profile-card-icon {
     width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
@@ -1200,7 +1204,7 @@ const PROFILE_FIELDS = [
   { key:'style',   lbl:'STYLE',   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>', type:'select', opts:['공격형','수비형','올라운드','네트플레이','베이스라인'], full:false },
   // ── 장비 정보 ──
   { key:'racket',  lbl:'RACQUET', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18"><ellipse cx="11" cy="9" rx="6" ry="8" transform="rotate(-45 11 9)"/><line x1="16" y1="16" x2="21" y2="21"/><line x1="8" y1="11" x2="11" y2="8"/></svg>', type:'text',   ph:'예) 윌슨 블레이드 98',  full:true,  section:'장비 정보' },
-  { key:'string',  lbl:'STRING',  icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18"><path d="M3 6h18M3 10h18M3 14h18M3 18h18"/></svg>',                                                                  type:'text',   ph:'예) 럭실론 4G 1.25',   full:false },
+  { key:'string',  lbl:'STRING',  icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18"><path d="M3 6h18M3 10h18M3 14h18M3 18h18"/></svg>',                                                                  type:'text',   ph:'예) 럭실론 4G 1.25',   full:false, span2:true },
   { key:'tension', lbl:'TENSION', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',                                                         type:'text',   ph:'예) 50/52 파운드',     full:false },
 ];
 
@@ -1237,7 +1241,7 @@ function renderProfile() {
       : `<input class="pf-input" value="${escHtml(val)}" placeholder="${f.ph||''}"
            onblur="saveProfileField('${f.key}',this.value)"
            onkeydown="if(event.key==='Enter')this.blur()">`;
-    html += `<div class="profile-card${f.full?' full':''}">
+    html += `<div class="profile-card${f.full?' full':f.span2?' span2':''}">
       <div class="profile-card-icon" style="color:#7c6af7;">${f.icon}</div>
       <div class="profile-card-body">
         <div class="profile-card-lbl">${f.lbl}</div>
