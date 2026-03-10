@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>NIJI STING</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Bebas+Neue&family=Orbitron:wght@700;900&display=swap');
@@ -25,15 +25,14 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 15px; overflow: hidden; }
 
-
-
   /* ===== APP SHELL ===== */
-  #app { display: flex; flex-direction: column; height: 100vh; max-width: 480px; margin: 0 auto; position: relative; }
+  #app { display: flex; flex-direction: column; height: 100%; height: 100dvh; max-width: 480px; margin: 0 auto; position: relative; }
 
   /* ===== TOP BAR ===== */
   .topbar {
     display: flex; align-items: center; justify-content: space-between;
     padding: 16px 20px 12px;
+    padding-top: max(16px, calc(env(safe-area-inset-top) + 8px));
     background: var(--bg);
     border-bottom: 1px solid var(--border);
     position: relative;
@@ -78,12 +77,13 @@
   /* ===== BOTTOM NAV ===== */
   .nav {
     display: flex; background: var(--surface); border-top: 1px solid var(--border);
-    padding: 12px 0 max(48px, calc(env(safe-area-inset-bottom) + 36px));
+    padding: 8px 0 0;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
     flex-shrink: 0;
   }
   .nav-btn {
     flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 6px 4px; background: none; border: none; color: var(--text-muted);
+    padding: 6px 4px 10px; background: none; border: none; color: var(--text-muted);
     font-family: inherit; font-size: 10px; cursor: pointer; transition: all .2s;
     position: relative;
   }
@@ -459,7 +459,39 @@
   .club-assign-btn.selected { border-color: var(--accent2); background: rgba(247,106,200,.15); color: var(--accent2); }
   .club-assign-btn.none-btn.selected { border-color: var(--border); background: var(--surface2); color: var(--text-muted); }
 
-  /* ===== 월별 승률 그래프 ===== */
+  /* ===== 개인 요약 카드 ===== */
+  .summary-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { font-size: 12px; color: var(--text-muted); }
+  .summary-val { font-size: 13px; font-weight: 700; }
+  .summary-val.good { color: var(--success); }
+  .summary-val.bad { color: var(--danger); }
+  .summary-val.accent { color: var(--accent); }
+
+  /* ===== 상대 전적 / 파트너 궁합 ===== */
+  .matchup-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .matchup-row:last-child { border-bottom: none; }
+  .matchup-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .matchup-info { flex: 1; min-width: 0; }
+  .matchup-name { font-size: 13px; font-weight: 700; }
+  .matchup-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .matchup-score { text-align: right; flex-shrink: 0; }
+  .matchup-wl { font-size: 15px; font-weight: 900; }
+  .matchup-rate { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .matchup-bar-wrap { width: 100%; height: 4px; background: var(--surface2); border-radius: 2px; margin-top: 4px; }
+  .matchup-bar-fill { height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--accent), var(--accent2)); }
+  .matchup-bar-fill.good { background: linear-gradient(to right, var(--success), #22c55e); }
+  .matchup-bar-fill.bad { background: linear-gradient(to right, var(--danger), #f87171); }
+
+  /* ===== 상대팀 상성 ===== */
+  .enemy-team-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .enemy-team-row:last-child { border-bottom: none; }
+  .enemy-team-names { flex: 1; min-width: 0; }
+  .enemy-team-main { font-size: 12px; font-weight: 700; }
+  .enemy-team-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .enemy-badge { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 10px; font-weight: 700; margin-left: 4px; }
+  .enemy-badge.strong { background: rgba(248,113,113,.15); color: var(--danger); }
+  .enemy-badge.weak { background: rgba(74,222,128,.15); color: var(--success); }
   .monthly-graph-wrap { padding: 4px 0 8px; overflow-x: auto; }
   .monthly-graph-inner { display: flex; align-items: flex-end; gap: 6px; min-width: 100%; padding-bottom: 4px; }
   .monthly-bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 36px; }
@@ -798,51 +830,43 @@
         기록
       </div>
 
-      <div class="section-title">전체 통계</div>
+      <!-- 연승/연패 배너 -->
       <div id="streakBanner"></div>
+
+      <!-- 개인 기록 요약 -->
+      <div class="section-title">내 기록 요약</div>
       <div class="stat-grid">
-        <div class="stat-box"><div class="stat-num" id="st-total">0</div><div class="stat-lbl">총 경기</div></div>
+        <div class="stat-box"><div class="stat-num" id="st-total">0</div><div class="stat-lbl">통산 경기</div></div>
         <div class="stat-box"><div class="stat-num" id="st-win">0</div><div class="stat-lbl">승</div></div>
         <div class="stat-box"><div class="stat-num" id="st-lose">0</div><div class="stat-lbl">패</div></div>
         <div class="stat-box"><div class="stat-num" id="st-rate">0%</div><div class="stat-lbl">승률</div></div>
       </div>
+      <div class="card" id="summaryCard"></div>
 
-      <div class="section-title">월별 승률 그래프</div>
+      <!-- 월별 그래프 -->
+      <div class="section-title">월별 승률</div>
       <div class="card">
         <div class="monthly-graph-wrap" id="monthlyGraph">
           <div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">경기를 입력하면 그래프가 표시됩니다</div>
         </div>
       </div>
 
-      <div class="section-title">형식별</div>
-      <div class="card">
-        <div style="display:flex;gap:16px;">
-          <div style="flex:1;text-align:center;">
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">단식</div>
-            <div style="font-size:18px;font-weight:700;" id="st-singles">0-0</div>
-          </div>
-          <div style="width:1px;background:var(--border);"></div>
-          <div style="flex:1;text-align:center;">
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">복식</div>
-            <div style="font-size:18px;font-weight:700;" id="st-doubles">0-0</div>
-          </div>
-        </div>
+      <!-- 상대 전적 -->
+      <div class="section-title">상대 전적</div>
+      <div class="card" id="opponentCard">
+        <div class="empty-state"><div class="empty-icon">⚔️</div><div class="empty-text">경기를 입력하면<br>상대 데이터가 표시됩니다</div></div>
       </div>
 
-      <div class="section-title">선수 순위</div>
-      <div class="club-filter-wrap" id="rankingClubFilter"></div>
-      <div class="card" id="rankingCard">
-        <div class="empty-state"><div class="empty-icon">🏸</div><div class="empty-text">경기를 입력하면<br>순위가 표시됩니다</div></div>
-      </div>
-
-      <div class="section-title">파트너별 승률</div>
+      <!-- 파트너 궁합 -->
+      <div class="section-title">파트너 궁합</div>
       <div class="card" id="partnerCard">
         <div class="empty-state"><div class="empty-icon">🤝</div><div class="empty-text">복식 경기를 입력하면<br>파트너 데이터가 표시됩니다</div></div>
       </div>
 
-      <div class="section-title">상대별 승률</div>
-      <div class="card" id="opponentCard">
-        <div class="empty-state"><div class="empty-icon">⚔️</div><div class="empty-text">경기를 입력하면<br>상대 데이터가 표시됩니다</div></div>
+      <!-- 상대팀 상성 -->
+      <div class="section-title">상대팀 상성 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(복식)</span></div>
+      <div class="card" id="enemyTeamCard">
+        <div class="empty-state"><div class="empty-icon">🆚</div><div class="empty-text">복식 경기를 입력하면<br>상대팀 데이터가 표시됩니다</div></div>
       </div>
     </div>
 
@@ -1088,6 +1112,7 @@ function load() {
     if (!state.lastStringDate) state.lastStringDate = '';
     if (!state.stringInterval) state.stringInterval = 3;
     if (!state.stringingHistory) state.stringingHistory = [];
+    state.editingMatchId = null; // 항상 초기화 (새로고침 시 수정모드 잔류 방지)
     // restore sport type selector
     if (document.getElementById('sportType')) {
       document.getElementById('sportType').value = state.sportType;
@@ -1271,7 +1296,7 @@ function saveMatch() {
     // 선수 자동 등록
     [opponent, matchData.opponent2, matchData.partner].filter(Boolean).forEach(n => {
       if (!state.players.find(p => p.name === n)) {
-        state.players.push({ id: state.nextPlayerId++, name: n, memo: '' });
+        state.players.push({ id: state.nextPlayerId++, name: n, memo: '', clubs: [] });
       }
     });
     showToast('🏸 경기 저장 완료!');
@@ -1418,137 +1443,55 @@ function renderStats() {
   document.getElementById('st-lose').textContent = loses;
   document.getElementById('st-rate').textContent = rate + '%';
 
+  renderStreak();
+  renderSummaryCard();
+  renderMonthlyGraph();
+  renderOpponentStats();
+  renderPartnerStats();
+  renderEnemyTeamStats();
+}
+
+function renderSummaryCard() {
+  const el = document.getElementById('summaryCard');
+  if (!el) return;
+  const ms = state.matches;
+  if (!ms.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:8px 0;text-align:center;">경기를 입력하면 요약이 표시됩니다</div>'; return; }
+
+  // 이번달
+  const now = new Date();
+  const thisYM = now.toISOString().slice(0, 7);
+  const thisMonth = ms.filter(m => m.date.slice(0, 7) === thisYM);
+  const tmW = thisMonth.filter(m => m.result === 'win').length;
+  const tmRate = thisMonth.length ? Math.round(tmW / thisMonth.length * 100) : 0;
+
+  // 단식/복식
   const singles = ms.filter(m => m.format === 'singles');
   const doubles = ms.filter(m => m.format === 'doubles');
   const sw = singles.filter(m => m.result === 'win').length;
   const dw = doubles.filter(m => m.result === 'win').length;
-  document.getElementById('st-singles').textContent = `${sw}-${singles.length - sw}`;
-  document.getElementById('st-doubles').textContent = `${dw}-${doubles.length - dw}`;
+  const sRate = singles.length ? Math.round(sw / singles.length * 100) : null;
+  const dRate = doubles.length ? Math.round(dw / doubles.length * 100) : null;
 
-  // ranking (opponents sorted by games played with me)
-  renderRanking();
-  renderPartnerStats();
-  renderOpponentStats();
-  renderStreak();
-  renderMonthlyGraph();
-}
+  // 가장 많이 이긴 상대
+  const oppMap = {};
+  ms.forEach(m => [m.opponent, m.opponent2].filter(Boolean).forEach(n => {
+    if (!oppMap[n]) oppMap[n] = { w: 0, l: 0 };
+    if (m.result === 'win') oppMap[n].w++; else oppMap[n].l++;
+  }));
+  const oppEntries = Object.entries(oppMap);
+  const bestVs = oppEntries.filter(([,d]) => d.w > 0).sort((a,b) => b[1].w - a[1].w)[0];
+  const hardestVs = oppEntries.filter(([,d]) => d.l > 0).sort((a,b) => b[1].l - a[1].l)[0];
 
-function toggleRankingClubFilter(club) {
-  const idx = state.rankingClubFilter.indexOf(club);
-  if (idx === -1) state.rankingClubFilter.push(club);
-  else state.rankingClubFilter.splice(idx, 1);
-  save();
-  renderRanking();
-}
+  const row = (label, val, cls='') =>
+    `<div class="summary-row"><span class="summary-label">${label}</span><span class="summary-val ${cls}">${val}</span></div>`;
 
-function renderRankingClubFilter() {
-  const el = document.getElementById('rankingClubFilter');
-  if (!el) return;
-  const myProfileClub = state.profile.club || '';
-  const allClubs = [...new Set([...state.clubs, ...(myProfileClub ? [myProfileClub] : [])])];
-  if (!allClubs.length) { el.innerHTML = ''; return; }
-  const selected = state.rankingClubFilter;
-  el.innerHTML = `<div class="club-filter">${allClubs.map(c =>
-    `<button class="club-filter-btn${selected.includes(c) ? ' active' : ''}" onclick="toggleRankingClubFilter('${escHtml(c)}')">${escHtml(c)}</button>`
-  ).join('')}</div>
-  <div style="font-size:10px;color:var(--text-muted);margin:4px 0 8px;padding-left:2px;">
-    ${selected.length ? `선택: ${selected.map(escHtml).join(', ')}` : '전체 순위 표시 중 (클럽 탭을 눌러 필터)'}
-  </div>`;
-}
-
-function renderRanking() {
-  renderRankingClubFilter();
-  const myName = state.profile.name || '나';
-  const myClub = state.profile.club || '';
-  const selectedClubs = state.rankingClubFilter; // 배열
-
-  const playerMap = {};
-  let myStats = { w: 0, l: 0, points: 0 };
-
-  state.matches.forEach(m => {
-    if (m.result === 'win') { myStats.w++; myStats.points += 2; }
-    else { myStats.l++; myStats.points -= 1; }
-
-    [m.opponent, m.opponent2, m.partner].filter(Boolean).forEach(name => {
-      if (name === myName) return;
-      if (!playerMap[name]) playerMap[name] = { w: 0, l: 0, points: 0 };
-      if (name === m.opponent || name === m.opponent2) {
-        if (m.result === 'win') { playerMap[name].l++; playerMap[name].points -= 1; }
-        else { playerMap[name].w++; playerMap[name].points += 2; }
-      } else if (name === m.partner) {
-        if (m.result === 'win') { playerMap[name].w++; playerMap[name].points += 2; }
-        else { playerMap[name].l++; playerMap[name].points -= 1; }
-      }
-    });
-  });
-
-  if (state.matches.length > 0) playerMap[myName] = myStats;
-
-  // 클럽 필터 적용 (선택 없으면 전체)
-  let filtered = Object.entries(playerMap);
-  if (selectedClubs.length > 0) {
-    filtered = filtered.filter(([name]) => {
-      if (name === myName) return true; // 나는 항상 포함
-      const p = state.players.find(pl => pl.name === name);
-      return p && selectedClubs.includes(p.club);
-    });
-  }
-
-  // 정렬
-  const sorted = filtered.sort((a, b) => {
-    const [,dataA] = a; const [,dataB] = b;
-    if (dataB.points !== dataA.points) return dataB.points - dataA.points;
-    const totalA = dataA.w + dataA.l; const totalB = dataB.w + dataB.l;
-    const rateA = totalA ? dataA.w / totalA : 0; const rateB = totalB ? dataB.w / totalB : 0;
-    return rateB - rateA;
-  });
-
-  const sportIcon = state.sportType === 'tennis' ? '🎾' : '🏸';
-  if (!sorted.length) {
-    document.getElementById('rankingCard').innerHTML = `<div class="empty-state"><div class="empty-icon">${sportIcon}</div><div class="empty-text">경기를 입력하면 순위가 표시됩니다</div></div>`;
-    return;
-  }
-
-  const titleLabel = selectedClubs.length === 0
-    ? '종합 순위'
-    : selectedClubs.length === 1
-      ? `${selectedClubs[0]} 순위`
-      : `${selectedClubs.join(' + ')} 순위`;
-
-  const rows = sorted.map(([name, d], i) => {
-    const total = d.w + d.l;
-    const rate = Math.round(d.w / total * 100);
-    const isMe = name === myName;
-    const playerClub = isMe ? myClub : (state.players.find(pl => pl.name === name) || {}).club || '';
-    const clubTag = playerClub
-      ? `<span class="club-badge${isMe ? ' my-club' : ''}">${escHtml(playerClub)}</span>` : '';
-    const cls = isMe ? 'rank-me' : i === 0 ? 'rank-first' : i === 1 ? 'rank-second' : i === 2 ? 'rank-third' : '';
-    const pointsStr = d.points >= 0 ? `+${d.points}` : d.points;
-    const nameDisplay = isMe ? `<strong>${name}</strong>${clubTag}` : `${name}${clubTag}`;
-    return `<tr class="${cls}"><td class="rank-num">${i+1}</td><td>${nameDisplay}</td><td style="font-weight:700;color:var(--accent);">${pointsStr}점</td><td>${total}전</td><td class="rank-rate">${rate}%</td></tr>`;
-  }).join('');
-
-  document.getElementById('rankingCard').innerHTML = `
-    <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;font-weight:700;letter-spacing:.5px;">${titleLabel}</div>
-    <table class="rank-table"><thead><tr><th></th><th>선수</th><th>점수</th><th>경기</th><th>승률</th></tr></thead><tbody>${rows}</tbody></table>`;
-}
-
-function renderPartnerStats() {
-  const doubles = state.matches.filter(m => m.format === 'doubles' && m.partner);
-  const pm = {};
-  doubles.forEach(m => {
-    if (!pm[m.partner]) pm[m.partner] = { w: 0, l: 0 };
-    if (m.result === 'win') pm[m.partner].w++; else pm[m.partner].l++;
-  });
-  if (!Object.keys(pm).length) {
-    document.getElementById('partnerCard').innerHTML = '<div class="empty-state"><div class="empty-icon">🤝</div><div class="empty-text">복식 경기를 입력하면 파트너 데이터가 표시됩니다</div></div>';
-    return;
-  }
-  const html = Object.entries(pm).sort((a,b)=>(b[1].w+b[1].l)-(a[1].w+a[1].l)).map(([name,d])=>{
-    const total = d.w+d.l; const rate=Math.round(d.w/total*100);
-    return `<div class="opponent-bar"><div class="opponent-name"><span>${name}</span><span class="rate-partner">${d.w}승${d.l}패 (${rate}%)</span></div><div class="bar-track"><div class="bar-fill-partner" style="width:${rate}%"></div></div></div>`;
-  }).join('');
-  document.getElementById('partnerCard').innerHTML = html;
+  el.innerHTML = [
+    row('이번 달', thisMonth.length ? `${thisMonth.length}전 ${tmW}승 (${tmRate}%)` : '경기 없음', tmRate >= 50 ? 'good' : thisMonth.length ? 'bad' : ''),
+    row('단식 전적', singles.length ? `${sw}승 ${singles.length-sw}패${sRate !== null ? ` · ${sRate}%` : ''}` : '없음', sRate !== null ? (sRate >= 50 ? 'good' : 'bad') : ''),
+    row('복식 전적', doubles.length ? `${dw}승 ${doubles.length-dw}패${dRate !== null ? ` · ${dRate}%` : ''}` : '없음', dRate !== null ? (dRate >= 50 ? 'good' : 'bad') : ''),
+    bestVs ? row('가장 많이 이긴 상대', `${bestVs[0]} (${bestVs[1].w}승)`, 'good') : '',
+    hardestVs ? row('가장 어려운 상대', `${hardestVs[0]} (${hardestVs[1].l}패)`, 'bad') : '',
+  ].join('');
 }
 
 function renderOpponentStats() {
@@ -1560,15 +1503,105 @@ function renderOpponentStats() {
     });
   });
   if (!Object.keys(om).length) {
-    document.getElementById('opponentCard').innerHTML = '<div class="empty-state"><div class="empty-icon">⚔️</div><div class="empty-text">경기를 입력하면 상대 데이터가 표시됩니다</div></div>';
+    document.getElementById('opponentCard').innerHTML = '<div class="empty-state"><div class="empty-icon">⚔️</div><div class="empty-text">경기를 입력하면<br>상대 데이터가 표시됩니다</div></div>';
     return;
   }
-  const html = Object.entries(om).sort((a,b)=>(b[1].w+b[1].l)-(a[1].w+a[1].l)).map(([name,d])=>{
-    const total=d.w+d.l; const rate=Math.round(d.w/total*100);
-    return `<div class="opponent-bar"><div class="opponent-name"><span>${name}</span><span class="rate-opponent">${d.w}승${d.l}패 (${rate}%)</span></div><div class="bar-track"><div class="bar-fill" style="width:${rate}%"></div></div></div>`;
+  const sorted = Object.entries(om).sort((a,b) => (b[1].w+b[1].l) - (a[1].w+a[1].l));
+  document.getElementById('opponentCard').innerHTML = sorted.map(([name, d]) => {
+    const total = d.w + d.l;
+    const rate = Math.round(d.w / total * 100);
+    const fillCls = rate >= 60 ? 'good' : rate < 40 ? 'bad' : '';
+    const badge = rate >= 60 ? '<span class="enemy-badge weak">우세</span>' : rate < 40 ? '<span class="enemy-badge strong">열세</span>' : '';
+    return `<div class="matchup-row">
+      <div class="matchup-avatar">${name.charAt(0)}</div>
+      <div class="matchup-info">
+        <div class="matchup-name">${escHtml(name)}${badge}</div>
+        <div class="matchup-bar-wrap"><div class="matchup-bar-fill ${fillCls}" style="width:${rate}%"></div></div>
+        <div class="matchup-sub">${total}전 · 내 승률 ${rate}%</div>
+      </div>
+      <div class="matchup-score">
+        <div class="matchup-wl" style="color:${d.w >= d.l ? 'var(--success)' : 'var(--danger)'}">${d.w}승 ${d.l}패</div>
+      </div>
+    </div>`;
   }).join('');
-  document.getElementById('opponentCard').innerHTML = html;
 }
+
+function renderPartnerStats() {
+  const doubles = state.matches.filter(m => m.format === 'doubles' && m.partner);
+  const pm = {};
+  doubles.forEach(m => {
+    if (!pm[m.partner]) pm[m.partner] = { w: 0, l: 0 };
+    if (m.result === 'win') pm[m.partner].w++; else pm[m.partner].l++;
+  });
+  if (!Object.keys(pm).length) {
+    document.getElementById('partnerCard').innerHTML = '<div class="empty-state"><div class="empty-icon">🤝</div><div class="empty-text">복식 경기를 입력하면<br>파트너 데이터가 표시됩니다</div></div>';
+    return;
+  }
+  const sorted = Object.entries(pm).sort((a,b) => (b[1].w+b[1].l) - (a[1].w+a[1].l));
+  document.getElementById('partnerCard').innerHTML = sorted.map(([name, d]) => {
+    const total = d.w + d.l;
+    const rate = Math.round(d.w / total * 100);
+    const fillCls = rate >= 60 ? 'good' : rate < 40 ? 'bad' : '';
+    const emoji = rate >= 70 ? '🔥' : rate >= 50 ? '👍' : '😅';
+    return `<div class="matchup-row">
+      <div class="matchup-avatar">${name.charAt(0)}</div>
+      <div class="matchup-info">
+        <div class="matchup-name">${escHtml(name)} ${emoji}</div>
+        <div class="matchup-bar-wrap"><div class="matchup-bar-fill ${fillCls}" style="width:${rate}%"></div></div>
+        <div class="matchup-sub">${total}경기 함께 · 궁합 ${rate}%</div>
+      </div>
+      <div class="matchup-score">
+        <div class="matchup-wl" style="color:${d.w >= d.l ? 'var(--success)' : 'var(--danger)'}">${d.w}승 ${d.l}패</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderEnemyTeamStats() {
+  // 복식 경기에서 상대팀 조합별 전적
+  const doubles = state.matches.filter(m => m.format === 'doubles' && m.opponent);
+  const tm = {};
+  doubles.forEach(m => {
+    const key = [m.opponent, m.opponent2].filter(Boolean).sort().join(' & ');
+    if (!tm[key]) tm[key] = { w: 0, l: 0 };
+    if (m.result === 'win') tm[key].w++; else tm[key].l++;
+  });
+  if (!Object.keys(tm).length) {
+    document.getElementById('enemyTeamCard').innerHTML = '<div class="empty-state"><div class="empty-icon">🆚</div><div class="empty-text">복식 경기를 입력하면<br>상대팀 데이터가 표시됩니다</div></div>';
+    return;
+  }
+  const sorted = Object.entries(tm).sort((a,b) => (b[1].w+b[1].l) - (a[1].w+a[1].l));
+  document.getElementById('enemyTeamCard').innerHTML = sorted.map(([team, d]) => {
+    const total = d.w + d.l;
+    const rate = Math.round(d.w / total * 100);
+    const fillCls = rate >= 60 ? 'good' : rate < 40 ? 'bad' : '';
+    const badge = rate >= 60 ? '<span class="enemy-badge weak">우세</span>' : rate < 40 ? '<span class="enemy-badge strong">약점</span>' : '';
+    const names = team.split(' & ');
+    return `<div class="enemy-team-row">
+      <div style="display:flex;gap:4px;flex-shrink:0;">
+        <div class="matchup-avatar" style="width:28px;height:28px;font-size:12px;">${names[0].charAt(0)}</div>
+        ${names[1] ? `<div class="matchup-avatar" style="width:28px;height:28px;font-size:12px;">${names[1].charAt(0)}</div>` : ''}
+      </div>
+      <div class="enemy-team-names" style="flex:1;min-width:0;margin:0 8px;">
+        <div class="enemy-team-main">${escHtml(team)}${badge}</div>
+        <div class="matchup-bar-wrap" style="margin-top:4px;"><div class="matchup-bar-fill ${fillCls}" style="width:${rate}%"></div></div>
+        <div class="enemy-team-sub">${total}전 · 내 승률 ${rate}%</div>
+      </div>
+      <div class="matchup-score">
+        <div class="matchup-wl" style="color:${d.w >= d.l ? 'var(--success)' : 'var(--danger)'}">${d.w}승 ${d.l}패</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleRankingClubFilter(club) {
+  const idx = state.rankingClubFilter.indexOf(club);
+  if (idx === -1) state.rankingClubFilter.push(club);
+  else state.rankingClubFilter.splice(idx, 1);
+  save();
+}
+function renderRankingClubFilter() {}
+function renderRanking() {}
 
 // ===== CLUBS =====
 function addClub() {
@@ -1983,8 +2016,9 @@ function showPlayerDetail(playerId) {
   // 최근 경기 이력 (최대 10개, 최신순)
   const recentMatches = [...vsMatches].sort((a,b) => b.date.localeCompare(a.date)).slice(0, 10);
 
-  const clubTag = player.club
-    ? `<span class="club-badge">${escHtml(player.club)}</span>`
+  const playerClubs = player.clubs || [];
+  const clubTag = playerClubs.length
+    ? playerClubs.map(c => `<span class="club-badge">${escHtml(c)}</span>`).join('')
     : '<span style="color:var(--text-muted);font-size:12px;">클럽 없음</span>';
 
   const rateBarWidth = myRate + '%';
@@ -2158,11 +2192,16 @@ function importData(input) {
       Object.assign(state, d);
       // migrate
       if (state.players.length && typeof state.players[0] === 'string') {
-        state.players = state.players.map((n, i) => ({ id: i+1, name: n, memo: '' }));
+        state.players = state.players.map((n, i) => ({ id: i+1, name: n, memo: '', clubs: [] }));
         state.nextPlayerId = state.players.length + 1;
       }
-      state.players = state.players.map(p => ({ memo: '', club: '', ...p }));
+      state.players = state.players.map(p => ({
+        memo: '', clubs: [], ...p,
+        clubs: p.clubs ? p.clubs : (p.club ? [p.club] : []),
+      }));
       if (!state.clubs) state.clubs = [];
+      if (!state.rankingClubFilter || !Array.isArray(state.rankingClubFilter)) state.rankingClubFilter = [];
+      if (!state.stringingHistory) state.stringingHistory = [];
       save();
       renderProfile();
       renderMatchList();
