@@ -648,6 +648,49 @@
   }
   .pf-item-select.unset { color: rgba(255,255,255,.25); font-size: 12px; font-weight: 400; font-style: italic; }
   .pf-item-select option { background: #1a1a22; }
+
+  /* ===== PLAYER DETAIL REDESIGN ===== */
+  .pd-hero {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .pd-avatar {
+    width: 60px; height: 60px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 900; color: #fff;
+  }
+  .pd-hero-info { flex: 1; min-width: 0; }
+  .pd-name { font-size: 22px; font-weight: 900; }
+  .pd-clubs { margin-top: 4px; }
+  .pd-section-title { font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing: .5px; margin-bottom: 10px; }
+  .pd-profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pd-profile-item { background: var(--surface2); border-radius: 10px; padding: 9px 12px; }
+  .pd-profile-lbl { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .pd-profile-select { width: 100%; background: none; border: none; outline: none; color: var(--text); font-family: inherit; font-size: 13px; font-weight: 700; padding: 0; -webkit-appearance: none; cursor: pointer; }
+  .pd-profile-select.unset { color: var(--text-muted); font-weight: 400; font-size: 12px; }
+  .pd-profile-select option { background: #1a1a22; }
+  .pd-stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 0 0 12px; }
+  .pd-stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 8px; text-align: center; }
+  .pd-stat-box.win  { border-color: rgba(74,222,128,.35); background: rgba(74,222,128,.07); }
+  .pd-stat-box.lose { border-color: rgba(248,113,113,.35); background: rgba(248,113,113,.07); }
+  .pd-stat-num { font-size: 26px; font-weight: 900; color: var(--text); line-height: 1; }
+  .pd-stat-num.win  { color: var(--success); }
+  .pd-stat-num.lose { color: var(--danger); }
+  .pd-stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
+  .pd-vs-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .pd-vs-block { text-align: center; }
+  .pd-vs-num { font-size: 36px; font-weight: 900; line-height: 1; }
+  .pd-vs-num.win  { color: var(--success); }
+  .pd-vs-num.lose { color: var(--danger); }
+  .pd-vs-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .pd-vs-sep { font-size: 16px; font-weight: 700; color: var(--text-muted); padding: 0 6px; }
+  .pd-vs-rate { margin-left: auto; text-align: right; font-size: 32px; font-weight: 900; line-height: 1; }
+  .pd-vs-rate span { display: block; font-size: 10px; color: var(--text-muted); font-weight: 400; margin-top: 3px; }
+  .pd-rate-bar-bg { height: 8px; background: var(--surface2); border-radius: 8px; overflow: hidden; }
+  .pd-rate-bar-fill { height: 100%; border-radius: 8px; transition: width .5s; }
 </style>
 </head>
 <body>
@@ -837,9 +880,35 @@
       </div>
 
       <!-- 선수 추가 -->
-      <div class="add-player-row">
-        <input class="form-input" id="newPlayerName" placeholder="선수 이름 입력" onkeydown="if(event.key==='Enter')addPlayer()">
-        <button class="btn btn-primary btn-sm" onclick="addPlayer()" style="white-space:nowrap;padding:0 16px;">+ 추가</button>
+      <div class="card" style="margin-bottom:10px;">
+        <div class="card-title" style="margin-bottom:12px;">👤 선수 등록</div>
+        <div class="form-group" style="margin-bottom:8px;">
+          <input class="form-input" id="newPlayerName" placeholder="이름 (필수)" onkeydown="if(event.key==='Enter')addPlayer()">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <select class="form-select" id="newPlayerAge">
+            <option value="">나이대</option>
+            <option>10대</option><option>20대</option><option>30대</option>
+            <option>40대</option><option>50대</option><option>60대 이상</option>
+          </select>
+          <select class="form-select" id="newPlayerHand">
+            <option value="">손잡이</option>
+            <option>오른손</option><option>왼손</option>
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+          <select class="form-select" id="newPlayerCareer">
+            <option value="">구력</option>
+            <option>6개월 미만</option><option>6개월~1년</option><option>1~2년</option>
+            <option>2~5년</option><option>5~10년</option><option>10년 이상</option>
+          </select>
+          <select class="form-select" id="newPlayerStyle">
+            <option value="">플레이스타일</option>
+            <option>공격형</option><option>수비형</option><option>올라운드</option>
+            <option>네트플레이</option><option>베이스라인</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="addPlayer()" style="width:100%;padding:12px;">+ 선수 등록</button>
       </div>
 
       <!-- 클럽 필터 -->
@@ -1887,11 +1956,27 @@ function addPlayer() {
   const name = document.getElementById('newPlayerName').value.trim();
   if (!name) { showToast('⚠️ 이름을 입력하세요'); return; }
   if (state.players.find(p => p.name === name)) { showToast('⚠️ 이미 등록된 선수입니다'); return; }
-  state.players.push({ id: state.nextPlayerId++, name, memo: '', clubs: [] });
+  const age   = document.getElementById('newPlayerAge').value;
+  const career= document.getElementById('newPlayerCareer').value;
+  const hand  = document.getElementById('newPlayerHand').value;
+  const style = document.getElementById('newPlayerStyle').value;
+  state.players.push({ id: state.nextPlayerId++, name, memo: '', clubs: [],
+    age, career, hand, style });
   save();
   document.getElementById('newPlayerName').value = '';
+  document.getElementById('newPlayerAge').value = '';
+  document.getElementById('newPlayerCareer').value = '';
+  document.getElementById('newPlayerHand').value = '';
+  document.getElementById('newPlayerStyle').value = '';
   renderPlayers();
   showToast(`✅ ${name} 추가 완료!`);
+}
+
+function savePlayerProfile(playerId, key, value) {
+  const player = state.players.find(p => p.id === playerId);
+  if (!player) return;
+  player[key] = value;
+  save();
 }
 
 function renderPlayers() {
@@ -2042,58 +2127,84 @@ function showPlayerDetail(playerId) {
       }).join('')
     : `<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px 0;">경기 기록이 없습니다</div>`;
 
+  // 선수 프로필 항목
+  const pAge   = player.age   || '';
+  const pHand  = player.hand  || '';
+  const pCareer= player.career|| '';
+  const pStyle = player.style || '';
+  const profileItems = [
+    { lbl:'나이대', val:pAge,    key:'age',    type:'select', opts:['10대','20대','30대','40대','50대','60대 이상'] },
+    { lbl:'손잡이', val:pHand,   key:'hand',   type:'select', opts:['오른손','왼손'] },
+    { lbl:'구력',   val:pCareer, key:'career', type:'select', opts:['6개월 미만','6개월~1년','1~2년','2~5년','5~10년','10년 이상'] },
+    { lbl:'스타일', val:pStyle,  key:'style',  type:'select', opts:['공격형','수비형','올라운드','네트플레이','베이스라인'] },
+  ];
+  const profileGrid = profileItems.map(item => `
+    <div class="pd-profile-item">
+      <div class="pd-profile-lbl">${item.lbl}</div>
+      <select class="pd-profile-select${item.val?'':' unset'}"
+        onchange="savePlayerProfile(${player.id},'${item.key}',this.value);this.classList.toggle('unset',!this.value)">
+        <option value="">미설정</option>
+        ${item.opts.map(o=>`<option${item.val===o?' selected':''}>${o}</option>`).join('')}
+      </select>
+    </div>`).join('');
+
   document.getElementById('playerDetailContent').innerHTML = `
-    <div class="player-detail-hero">
-      <div class="player-detail-avatar">${player.name.charAt(0)}</div>
-      <div>
-        <div class="player-detail-name">${escHtml(player.name)}</div>
-        <div class="player-detail-club">${clubTag}</div>
+    <!-- 히어로 헤더 -->
+    <div class="pd-hero">
+      <div class="pd-avatar">${player.name.charAt(0)}</div>
+      <div class="pd-hero-info">
+        <div class="pd-name">${escHtml(player.name)}</div>
+        <div class="pd-clubs">${clubTag}</div>
       </div>
     </div>
 
-    <div class="player-stat-grid">
-      <div class="player-stat-box">
-        <div class="player-stat-val">${totalVs}</div>
-        <div class="player-stat-lbl">총 경기</div>
+    <!-- 선수 프로필 -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="pd-section-title">👤 선수 프로필</div>
+      <div class="pd-profile-grid">${profileGrid}</div>
+    </div>
+
+    <!-- 전적 요약 -->
+    <div class="pd-stat-row">
+      <div class="pd-stat-box">
+        <div class="pd-stat-num">${totalVs}</div>
+        <div class="pd-stat-lbl">총 경기</div>
       </div>
-      <div class="player-stat-box win">
-        <div class="player-stat-val win">${playerWins}</div>
-        <div class="player-stat-lbl">승</div>
+      <div class="pd-stat-box win">
+        <div class="pd-stat-num win">${myWin}</div>
+        <div class="pd-stat-lbl">내 승</div>
       </div>
-      <div class="player-stat-box lose">
-        <div class="player-stat-val lose">${playerLoses}</div>
-        <div class="player-stat-lbl">패</div>
+      <div class="pd-stat-box lose">
+        <div class="pd-stat-num lose">${myLoss}</div>
+        <div class="pd-stat-lbl">내 패</div>
       </div>
     </div>
 
-    <div class="player-vs-card">
-      <div class="player-vs-title">🆚 나와의 전적 (내 기준)</div>
-      <div class="player-vs-row">
-        <div>
-          <div class="player-vs-num win">${myWin}</div>
-          <div class="player-vs-sub">승</div>
+    <!-- 나와의 전적 카드 -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="pd-section-title">🆚 나와의 전적</div>
+      <div class="pd-vs-row">
+        <div class="pd-vs-block">
+          <div class="pd-vs-num win">${myWin}</div>
+          <div class="pd-vs-sub">승</div>
         </div>
-        <div class="player-vs-sep">:</div>
-        <div>
-          <div class="player-vs-num lose">${myLoss}</div>
-          <div class="player-vs-sub">패</div>
+        <div class="pd-vs-sep">VS</div>
+        <div class="pd-vs-block">
+          <div class="pd-vs-num lose">${myLoss}</div>
+          <div class="pd-vs-sub">패</div>
         </div>
-        <div style="margin-left:auto;text-align:right;">
-          <div style="font-size:28px;font-weight:900;color:${myRate>=50?'var(--success)':'var(--danger)'};">${myRate}%</div>
-          <div style="font-size:11px;color:var(--text-muted);">내 승률</div>
+        <div class="pd-vs-rate" style="color:${myRate>=50?'var(--success)':'var(--danger)'};">
+          ${myRate}%<span>내 승률</span>
         </div>
+      </div>
+      <div class="pd-rate-bar-bg">
+        <div class="pd-rate-bar-fill" style="width:${myRate}%;background:${myRate>=50?'var(--success)':'var(--danger)'}"></div>
       </div>
     </div>
 
-    <div class="player-rate-bar-wrap">
-      <div class="player-rate-bar-lbl">내 승률 ${myRate}%</div>
-      <div class="player-rate-bar-bg">
-        <div class="player-rate-bar-fill" style="width:${rateBarWidth}"></div>
-      </div>
-    </div>
-
-    <div class="player-match-history">
-      <div class="player-match-history-title">최근 대전 기록</div>
+    <!-- 최근 대전 기록 -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="pd-section-title">📋 최근 대전 기록</div>
       ${matchRows}
     </div>
   `;
