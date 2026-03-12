@@ -691,6 +691,33 @@
   .pd-vs-rate span { display: block; font-size: 10px; color: var(--text-muted); font-weight: 400; margin-top: 3px; }
   .pd-rate-bar-bg { height: 8px; background: var(--surface2); border-radius: 8px; overflow: hidden; }
   .pd-rate-bar-fill { height: 100%; border-radius: 8px; transition: width .5s; }
+
+  /* ===== MANUAL STYLES ===== */
+  .manual-wrap { padding: 4px 2px 8px; }
+  .manual-section { padding: 4px 0 8px; }
+  .manual-sec-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .manual-sec-icon { font-size: 18px; }
+  .manual-sec-title {
+    font-size: 14px; font-weight: 800; color: var(--text);
+  }
+  .manual-items { display: flex; flex-direction: column; gap: 7px; padding-left: 4px; }
+  .manual-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 12px; line-height: 1.6; color: var(--text-muted);
+  }
+  .manual-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0; margin-top: 6px;
+  }
+  .manual-item b { color: var(--text); font-weight: 700; }
+  .manual-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 0;
+  }
 </style>
 </head>
 <body>
@@ -1038,34 +1065,178 @@
       <span class="modal-title">📖 사용 설명서</span>
       <button class="modal-close" onclick="closeModal('manualModal')">✕</button>
     </div>
-    <p style="font-size:13px;line-height:1.8;color:var(--text-muted);">
-      <b style="color:var(--text)">1. 프로필 설정</b><br>
-      📷 프로필 사진을 업로드할 수 있습니다. (아바타 클릭)<br>
-      이름, 나이대, 경력, 손잡이, 플레이 스타일을 저장하세요.<br><br>
-      
-      <b style="color:var(--text)">2. 경기 기록</b><br>
-      날짜, 형식(단식/복식), 상대, 결과를 입력하세요.<br>
-      스코어, 타이브레이크 점수, 메모는 선택사항입니다.<br>
-      예) 21:19 (11-9) - 일반 스코어와 타이브레이크 점수<br><br>
-      
-      <b style="color:var(--text)">3. 통계</b><br>
-      🏸 배드민턴 / 🎾 테니스 종목을 선택할 수 있습니다.<br>
-      <b>선수 순위:</b> 점수 시스템으로 순위가 매겨집니다.<br>
-      • 승리: +2점 / 패배: -1점<br>
-      • 정렬: 점수 → 승률 순<br>
-      • 내 순위는 보라색으로 강조 표시됩니다.<br>
-      승률, 형식별, 파트너별, 상대별 통계를 확인하세요.<br><br>
-      
-      <b style="color:var(--text)">4. 선수 목록</b><br>
-      함께 경기한 선수를 등록하고 관리할 수 있습니다.<br>
-      • ✏️ 버튼: 이름 수정<br>
-      • 📝 버튼: 선수 특징 메모 (예: 수비 스타일, 발리 약함)<br>
-      • 🗑️ 버튼: 선수 삭제<br><br>
-      
-      <b style="color:var(--text)">5. 백업 & 공유</b><br>
-      💾 데이터 내보내기: JSON 파일로 백업 저장<br>
-      📂 가져오기: 백업 파일에서 복원
-    </p>
+    <div class="manual-wrap">
+
+      <div class="manual-section">
+        <div class="manual-sec-header">
+          <span class="manual-sec-icon">👤</span>
+          <span class="manual-sec-title">1. 프로필</span>
+        </div>
+        <div class="manual-items">
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>상단 사진 영역을 탭하면 <b>프로필 사진</b>을 등록할 수 있어요</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>이름·클럽·나이대·손잡이·구력·플레이 스타일·라켓·스트링·텐션을 저장하세요</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>각 항목을 탭하면 바로 수정되고 자동 저장됩니다</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="manual-divider"></div>
+
+      <div class="manual-section">
+        <div class="manual-sec-header">
+          <span class="manual-sec-icon">🏸</span>
+          <span class="manual-sec-title">2. 경기 기록</span>
+        </div>
+        <div class="manual-items">
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>상단 토글로 <b>단식 / 복식</b>을 선택하세요. 복식이면 파트너 입력란이 추가됩니다</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>날짜 · 상대 이름 · 결과(승/패)는 필수 입력 항목이에요</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>스코어 · 타이브레이크 · 메모는 선택 사항입니다<br>
+            예) 스코어 <b>21:19</b> / 타이브레이크 <b>11-9</b></span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>저장된 경기는 목록에서 ✏️ 수정 · 🗑️ 삭제 가능해요</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="manual-divider"></div>
+
+      <div class="manual-section">
+        <div class="manual-sec-header">
+          <span class="manual-sec-icon">📊</span>
+          <span class="manual-sec-title">3. 통계</span>
+        </div>
+        <div class="manual-items">
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>상단에서 <b>🏸 배드민턴 / 🎾 테니스</b> 종목을 전환할 수 있어요</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span><b>연승·연패 배너</b> — 현재 연속 기록이 자동 표시됩니다</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span><b>개인 요약</b> — 통산 승률, 단식·복식 별도 승률 확인</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span><b>월별 승률 그래프</b> — 월별 성적 추이를 바 차트로 시각화</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span><b>상대 전적</b> — 자주 만난 상대별 승률 분석</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span><b>파트너 궁합</b> — 복식 파트너별 팀 승률 분석</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span><b>상대팀 상성</b> — 복식에서 만난 상대 조합별 전적</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="manual-divider"></div>
+
+      <div class="manual-section">
+        <div class="manual-sec-header">
+          <span class="manual-sec-icon">👥</span>
+          <span class="manual-sec-title">4. 선수 관리</span>
+        </div>
+        <div class="manual-items">
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>선수 등록 시 <b>이름·나이대·손잡이·구력·플레이스타일</b>을 함께 입력할 수 있어요</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>선수 목록에서 이름을 탭하면 <b>상세 전적 페이지</b>로 이동합니다</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>상세 페이지에서 선수 프로필을 직접 수정할 수 있어요</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>나와의 전적 (승·패·승률%), 최근 대전 기록을 확인하세요</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span><b>클럽 관리</b>에서 클럽을 만들고 선수에게 배정할 수 있어요. 클럽별 필터도 가능합니다</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>✏️ 이름수정 · 📝 메모 · 🗑️ 삭제 버튼으로 선수를 관리하세요</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="manual-divider"></div>
+
+      <div class="manual-section">
+        <div class="manual-sec-header">
+          <span class="manual-sec-icon">🎯</span>
+          <span class="manual-sec-title">5. 스트링 관리</span>
+        </div>
+        <div class="manual-items">
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>마지막 스트링 교체일을 입력하면 <b>교체 권장 알림</b>이 자동으로 표시됩니다</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>교체 권장 주기를 1·2·3·6·12개월 중 선택하세요</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>스트링명과 날짜를 입력해 <b>장비 교체 히스토리</b>를 기록할 수 있어요</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="manual-divider"></div>
+
+      <div class="manual-section">
+        <div class="manual-sec-header">
+          <span class="manual-sec-icon">💾</span>
+          <span class="manual-sec-title">6. 백업 & 복원</span>
+        </div>
+        <div class="manual-items">
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span><b>데이터 내보내기</b> — 모든 기록을 JSON 파일로 저장해두세요</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span><b>가져오기</b> — 백업 파일을 불러와 데이터를 복원할 수 있어요</span>
+          </div>
+          <div class="manual-item">
+            <span class="manual-dot"></span>
+            <span>데이터는 기기 내 브라우저에 저장되므로 정기적인 백업을 권장합니다</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
 
